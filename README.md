@@ -1,6 +1,6 @@
 --- Firmware testing analysis tool ---
 
-Before starting an analysis ensure the board data is moved to ../FST_SEP .
+Before starting an analysis ensure the board data is moved to the working directory.
 
 Copy the filename into runMe.py and tree.h 
 

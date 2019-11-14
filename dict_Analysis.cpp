@@ -180,7 +180,7 @@ namespace {
     };
     static const char* includePaths[] = {
 "/Applications/root_v6.16.00/include",
-"/Users/harveybirch/Desktop/FST_SEP/",
+"/Users/harveybirch/GitHub/OCS_analysis/",
 0
     };
     static const char* fwdDeclCode = R"DICTFWDDCLS(
