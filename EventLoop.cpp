@@ -116,7 +116,8 @@ void EventLoop::execute() {
    m_chain->GetEntry(eventNum); // Get the event data
    int fpgaNum = fpgaBoardNumOut; 
    int PBNum = pulserboardnumOut;
-   string filenamestr = "FPGA" + to_string(fpgaNum) + "_" + "CH" + to_string(PBNum) + "_Results.root";
+   string filenamestr = "Analysis_results/FPGA" + to_string(fpgaNum) + "_" + "CH" + to_string(PBNum) + "_Results.root";
+   //string filenamestr = "FPGA" + to_string(fpgaNum) + "_" + "CH" + to_string(PBNum) + "_Results.root";
    char filename[filenamestr.size() + 1]; //String to Char converson for filename
    filenamestr.copy(filename, filenamestr.size() + 1);
    filename[filenamestr.size()] = '\0';
@@ -359,7 +360,7 @@ void EventLoop::execute() {
    double fitparam3 = fitparam -> GetParameter(3);
    // cout << "Fit parameters: " << fitparam0 << ", " << fitparam1 << ", " << fitparam2 << " and " << fitparam3 << endl; 
 
-   string TrigWstr = "FPGA" + to_string(fpgaNum) + "_" + "CH" + to_string(PBNum) + "_TrigW_fit_parameters.txt";
+   string TrigWstr = "Analysis_results/FPGA" + to_string(fpgaNum) + "_" + "CH" + to_string(PBNum) + "_TrigW_fit_parameters.txt";
    char TrigWfile[TrigWstr.size() + 1]; //String to Char converson for filename
    TrigWstr.copy(TrigWfile, TrigWstr.size() + 1);
    TrigWfile[TrigWstr.size()] = '\0';
@@ -367,13 +368,7 @@ void EventLoop::execute() {
    FILE *afile = fopen (TrigWfile, "w+");
    fprintf (afile,"%d\t%d\t%3.6f\t%3.6f\t%3.6f\t%3.6f", fpga_Num, PB_Num, fitparam0, fitparam1, fitparam2, fitparam3);
    fclose(afile);
-
-   /* 
-      TF1 *fitf_1 = new TF1("fitf_1",fitf1,1.,750e3,4);
-      fitf_1->SetParameters(30,1,1,1);
-      H_nph_vs_TriggerWidth->Fit(fitf_1);
-   */
-
+   
    outFile->Write();
    outFile->Close();
  }
