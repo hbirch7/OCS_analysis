@@ -142,14 +142,16 @@ void EventLoop::execute() {
 
    TH1F *H_triggerWidth_div_PMTPulseWidth = new TH1F("triggerWidth_div_PMTPulseWidth", "triggerWidth_div_PMTPulseWidth", 500, 0, 10);
 
-   TH2F *H_TriggerWidth_vs_nph = new TH2F("TriggerWidth mean vs nph mean", "TriggerWidth mean vs nph mean", 75, 0, 75, 1000, 0, 750000);
-   TH2F *H_nph_vs_TriggerWidth = new TH2F("nph mean vs TriggerWidth mean", "nph mean vs TriggerWidth mean", 1000, 0, 750000, 75, 0, 75);
-   TH2F *H_lnnph_vs_TriggerWidth = new TH2F("lnnph mean vs TriggerWidth mean", "lnnph mean vs TriggerWidth mean", 1000, 0, 20, 75, 0, 75);
-   TH2F *H_PMTPulseWidth_vs_nph = new TH2F("PMTPulseWidth mean vs nph mean", "PMTPulseWidth mean vs nph mean", 75, 0, 75, 1000, 0, 750000);
+   TH2F *H_TriggerWidth_vs_nph = new TH2F("TriggerWidth mean vs nph mean", "TriggerWidth mean vs nph mean", 750, 0, 75, 1000, 0, 750000);
+   TH2F *H_nph_vs_TriggerWidth = new TH2F("nph mean vs TriggerWidth mean", "nph mean vs TriggerWidth mean", 1000, 0, 750000, 750, 0, 75);
+   TH2F *H_lnnph_vs_TriggerWidth = new TH2F("lnnph mean vs TriggerWidth mean", "lnnph mean vs TriggerWidth mean", 1000, 0, 20, 750, 0, 75);
+   TH2F *H_PMTPulseWidth_vs_nph = new TH2F("PMTPulseWidth mean vs nph mean", "PMTPulseWidth mean vs nph mean", 750, 0, 75, 1000, 0, 750000);
 
    TH2F *H_TrigWidthmean_vs_PMTPulseWidthmean = new TH2F("Trigger Width mean vs PMTPulseWidth mean", "Trigger Width mean vs PMTPulseWidth mean", 150, 0, 75, 50, 0, 25);
 
    TH2F *H_pdValue_vs_nph = new TH2F("pdValue vs nph", "pdValue vs nph", 25, 0, 2.5, 1000, 0, 750000);
+   TH2F *H_tsec_vs_pdValue = new TH2F("tsec vs pdValue", "tsec vs pdValue", 70000, 0, 7000, 25, 0, 2.5);//
+   TH2F *H_PMTPulseWidth_vs_pdValue = new TH2F("PMTPulseWidth mean vs pdValue", "PMTPulseWidth mean vs pdValue", 750, 0, 75, 25, 0, 2.5);//
    TH2F *H_totalWidthSet_vs_pdValue = new TH2F("totalWidthSet vs pdValue", "total WidthSet vs pdValue", 750, 0, 750, 25, 0, 2.5);
 
    TH2F *H_tsec_vs_SmallWidthSet = new TH2F("tsec_vs_SmallWidthSet", "tsec vs SmallWidthSet", 500, 0, 25000, 71, 0, 70);
@@ -256,7 +258,9 @@ void EventLoop::execute() {
        H_TriggerWidth_vs_nph->Fill(triggerWidth_mean, nph_mean);
        H_PMTPulseWidth_vs_nph->Fill(PMTPulseWidth_mean, nph_mean);
        H_pdValue_vs_nph->Fill(pdValue, nph_mean);
-       H_totalWidthSet_vs_pdValue->Fill( totalWidthSet, pdValue);
+       H_tsec_vs_pdValue->Fill(tsec, pdValue);
+       H_PMTPulseWidth_vs_pdValue->Fill(PMTPulseWidth_mean, pdValue);
+       H_totalWidthSet_vs_pdValue->Fill(totalWidthSet, pdValue);
        H_TrigWidthmean_vs_PMTPulseWidthmean->Fill(triggerWidth_mean , PMTPulseWidth_mean );
        //fit nph
        //     H_nph->Draw();
