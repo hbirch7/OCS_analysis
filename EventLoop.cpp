@@ -149,10 +149,10 @@ void EventLoop::execute() {
 
    TH2F *H_TrigWidthmean_vs_PMTPulseWidthmean = new TH2F("Trigger Width mean vs PMTPulseWidth mean", "Trigger Width mean vs PMTPulseWidth mean", 150, 0, 75, 50, 0, 25);
 
-   TH2F *H_pdValue_vs_nph = new TH2F("pdValue vs nph", "pdValue vs nph", 25, 0, 2.5, 1000, 0, 750000);
-   TH2F *H_tsec_vs_pdValue = new TH2F("tsec vs pdValue", "tsec vs pdValue", 70000, 0, 7000, 25, 0, 2.5);//
-   TH2F *H_PMTPulseWidth_vs_pdValue = new TH2F("PMTPulseWidth mean vs pdValue", "PMTPulseWidth mean vs pdValue", 750, 0, 75, 25, 0, 2.5);//
-   TH2F *H_totalWidthSet_vs_pdValue = new TH2F("totalWidthSet vs pdValue", "total WidthSet vs pdValue", 750, 0, 750, 25, 0, 2.5);
+   TH2F *H_pdValue_vs_nph = new TH2F("pdValue vs nph", "pdValue vs nph", 50, 0, 5, 1000, 0, 750000);
+   TH2F *H_tsec_vs_pdValue = new TH2F("tsec vs pdValue", "tsec vs pdValue", 70000, 0, 7000, 50, 0, 5);//
+   TH2F *H_PMTPulseWidth_vs_pdValue = new TH2F("PMTPulseWidth mean vs pdValue", "PMTPulseWidth mean vs pdValue", 750, 0, 75, 50, 0, 5);//
+   TH2F *H_totalWidthSet_vs_pdValue = new TH2F("totalWidthSet vs pdValue", "total WidthSet vs pdValue", 750, 0, 750, 5, 0, 5);
 
    TH2F *H_tsec_vs_SmallWidthSet = new TH2F("tsec_vs_SmallWidthSet", "tsec vs SmallWidthSet", 500, 0, 25000, 71, 0, 70);
    TH1F *H_SmallWidthSet = new TH1F("SmallWidthSet", "SmallWidthSet", 71, -0.5, 70.5);
