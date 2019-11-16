@@ -17,7 +17,7 @@ class tree {
 public :
   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t           fCurrent; //!current Tree number in a TChain
-  String_t fname = FPGA1_CH2_Freq4000.0khz_Date_20191114_05_44_36.root;
+  String_t fname = FPGA1_CH5_Freq4000.0khz_Date_20191115_06_20_45.root;
   
   // Fixed size dimensions of array or collections stored in the TTree if any.
   
