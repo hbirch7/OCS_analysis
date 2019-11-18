@@ -1,12 +1,12 @@
 --- Firmware testing analysis tool ---
 
-Before starting an analysis ensure the board data is moved to the working directory.
+Before starting an analysis ensure the board data is moved to the SURF_datastore/ directory.
 
-Copy the filename into runMe.py and tree.h 
+Append the varible fname with the new data file name in tree.h
 
-Enter the following commands:
+Clean the make file using the command: $ make clean
 
-$ make clean
-$ make
-$ python runMe.py
+Compile the analysis code using the command $ make
+
+To run an analysis use the following command $ python2.7 runMe.py <filename>
 
