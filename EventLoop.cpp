@@ -150,8 +150,9 @@ void EventLoop::execute() {
 
    TH2F *H_TrigWidthmean_vs_PMTPulseWidthmean = new TH2F("Trigger Width mean vs PMTPulseWidth mean", "Trigger Width mean vs PMTPulseWidth mean", 150, 0, 75, 50, 0, 25);
 
-   TH2F *H_pdValue_vs_nph = new TH2F("pdValue vs nph", "pdValue vs nph", 50, 0, 5, 12000, 0, 1.2e6);
    TH2F *H_tsec_vs_pdValue = new TH2F("tsec vs pdValue", "tsec vs pdValue", 70000, 0, 7000, 50, 0, 5);//
+   TH2F *H_pdValue_vs_nph = new TH2F("pdValue vs nph"," pdValue vs nph",50, 0, 5, 12000, 0, 1.2e6);
+   TH2F *H_pdValue_vs_lnnph = new TH2F("pdValue vs lnnph","pdValue vs lnnph",50,0,5,200,0,20);
    TH2F *H_PMTPulseWidth_vs_pdValue = new TH2F("PMTPulseWidth mean vs pdValue", "PMTPulseWidth mean vs pdValue", 300, 0, 30, 50, 0, 5);//
    TH2F *H_totalWidthSet_vs_pdValue = new TH2F("totalWidthSet vs pdValue", "total WidthSet vs pdValue", 300, 0, 300, 5, 0, 5);
 
@@ -269,7 +270,8 @@ void EventLoop::execute() {
        // try and fit it, then store the fit in an array with totalWidthSet?
        H_nph_vs_TriggerWidth->Fill(nph_mean, triggerWidth_mean);
        H_lnnph_vs_TriggerWidth->Fill(lnnph_mean, triggerWidth_mean);
-
+       H_lnnph_vs_TriggerWidth->Fill(pdValue,ln);
+       
        H_nph->Reset();
        H_triggerWidth->Reset();
        H_PMTPulseWidth->Reset();
@@ -348,9 +350,8 @@ void EventLoop::execute() {
    fitf_0->SetParameters(19.,0.25,-0.006,0.0006);
    H_lnnph_vs_TriggerWidth->Fit(fitf_0);
 
-   TF1*PDPMT = new TF1("PDPMT","pol1",0,5);
+   TF1*PDPMT = new TF1("PDPMT","pol2",0,3);
    H_PMTPulseWidth_vs_pdValue->Fit(PDPMT);
-   H_pdValue_vs_nph->Fit(PDPMT);
    
    H_fpgaNum->Fill(fpgaBoardNumOut);
    Int_t fpga_Num = H_fpgaNum->GetMean();
