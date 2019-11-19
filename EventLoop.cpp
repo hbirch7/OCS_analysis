@@ -153,6 +153,7 @@ void EventLoop::execute() {
    TH2F *H_tsec_vs_pdValue = new TH2F("tsec vs pdValue", "tsec vs pdValue", 70000, 0, 7000, 50, 0, 5);//
    TH2F *H_pdValue_vs_nph = new TH2F("pdValue vs nph"," pdValue vs nph",50, 0, 5, 12000, 0, 1.2e6);
    TH2F *H_pdValue_vs_lnnph = new TH2F("pdValue vs lnnph","pdValue vs lnnph",50,0,5,200,0,20);
+   TH2F *H_nph_vs_pdValue = new TH2F("nph vs pdValue","nph vs pdValue",12000,0,1.2e6,50,0,5);
    TH2F *H_PMTPulseWidth_vs_pdValue = new TH2F("PMTPulseWidth mean vs pdValue", "PMTPulseWidth mean vs pdValue", 300, 0, 30, 50, 0, 5);//
    TH2F *H_totalWidthSet_vs_pdValue = new TH2F("totalWidthSet vs pdValue", "total WidthSet vs pdValue", 300, 0, 300, 5, 0, 5);
 
@@ -271,6 +272,7 @@ void EventLoop::execute() {
        H_nph_vs_TriggerWidth->Fill(nph_mean, triggerWidth_mean);
        H_lnnph_vs_TriggerWidth->Fill(lnnph_mean, triggerWidth_mean);
        H_pdValue_vs_lnnph->Fill(pdValue,lnnph_mean);
+       H_nph_vs_pdValue->Fill(nph_mean,pdValue);
        
        H_nph->Reset();
        H_triggerWidth->Reset();
@@ -352,6 +354,9 @@ void EventLoop::execute() {
 
    TF1*PDPMT = new TF1("PDPMT","pol2",0,3);
    H_PMTPulseWidth_vs_pdValue->Fit(PDPMT);
+
+   //   TF1*Cheb = new TF1("Cheb",TMath::ChebyshevPol(2),0,1.2e6);
+   //H_nph_vs_pdValue->Fit(Cheb);
    
    H_fpgaNum->Fill(fpgaBoardNumOut);
    Int_t fpga_Num = H_fpgaNum->GetMean();
