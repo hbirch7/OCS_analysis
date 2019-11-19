@@ -211,7 +211,7 @@ void EventLoop::execute() {
        dnph->cd();
        // Too few entries from power meter (nph) to fit gaussian of the nph data - just get mean of hist
        double nph_mean = H_nph->GetMean();
-       double lnnph_mean = TMath::Log(nph_mean);
+       double  lnnph_mean = TMath::Log(nph_mean);
        double nph_spread = H_nph->GetStdDev();
        H_nph_stdDev->Fill(nph_spread);
 
@@ -270,7 +270,7 @@ void EventLoop::execute() {
        // try and fit it, then store the fit in an array with totalWidthSet?
        H_nph_vs_TriggerWidth->Fill(nph_mean, triggerWidth_mean);
        H_lnnph_vs_TriggerWidth->Fill(lnnph_mean, triggerWidth_mean);
-       H_lnnph_vs_TriggerWidth->Fill(pdValue,ln);
+       H_pdValue_vs_lnnph->Fill(pdValue,lnnph_mean);
        
        H_nph->Reset();
        H_triggerWidth->Reset();
