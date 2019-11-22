@@ -355,6 +355,9 @@ void EventLoop::execute() {
    TF1*PDPMT = new TF1("PDPMT","pol2",0,3);
    H_PMTPulseWidth_vs_pdValue->Fit(PDPMT);
 
+   TF1*PMTFit = new TF1("PMTFit","pol1",0,20);
+   H_PMTPulseWidth_vs_nph->Fit(PMTFit);
+   
    //   TF1*Cheb = new TF1("Cheb",TMath::ChebyshevPol(2),0,1.2e6);
    //H_nph_vs_pdValue->Fit(Cheb);
    
