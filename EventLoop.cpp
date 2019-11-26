@@ -140,7 +140,8 @@ void EventLoop::execute() {
 
    TH1F *H_triggerWidth = new TH1F("triggerWidth", "triggerWidth", 3000, 0, 75);
    TH1F *H_PMTPulseWidth = new TH1F("pmtPulseWidth", "PMT Pulse Width", 750, 0, 37.5);
-
+   TH2F *H_tsec_vs_nph = new TH2F("tsec vs nph mean","tsec vs nph mean",5e3,0,50e3,12000,0,1.2e6);
+   
    TH1F *H_triggerWidth_div_PMTPulseWidth = new TH1F("triggerWidth_div_PMTPulseWidth", "triggerWidth_div_PMTPulseWidth", 500, 0, 10);
 
    TH2F *H_TriggerWidth_vs_nph = new TH2F("TriggerWidth mean vs nph mean", "TriggerWidth mean vs nph mean", 750, 0, 75, 12000, 0, 1.2e6);
@@ -258,6 +259,7 @@ void EventLoop::execute() {
 
        outFile->cd();
        ///
+       H_tsec_vs_nph->Fill(tsec, nph_mean);
        H_TriggerWidth_vs_nph->Fill(triggerWidth_mean, nph_mean);
        H_PMTPulseWidth_vs_nph->Fill(PMTPulseWidth_mean, nph_mean);
        H_pdValue_vs_nph->Fill(pdValue, nph_mean);
@@ -352,11 +354,15 @@ void EventLoop::execute() {
    fitf_0->SetParameters(19.,0.25,-0.006,0.0006);
    H_lnnph_vs_TriggerWidth->Fit(fitf_0);
 
-   TF1*PDPMT = new TF1("PDPMT","pol2",0,3);
-   H_PMTPulseWidth_vs_pdValue->Fit(PDPMT);
+   TF1*PMTpdVal = new TF1("PMTpdVal","pol2",0,3);
+   H_PMTPulseWidth_vs_pdValue->Fit(PMTpdVal);
 
-   TF1*PMTFit = new TF1("PMTFit","pol1",0,20);
-   H_PMTPulseWidth_vs_nph->Fit(PMTFit);
+   TF1*PMTnphFit = new TF1("PMTnphFit","pol2",1.5,25);
+   H_PMTPulseWidth_vs_nph->Fit(PMTnphFit);
+
+   TF1*pdValNphFit = new TF1("pdValNphFit","pol1",0,3.5);
+   H_pdValue_vs_nph->Fit(pdValNphFit);
+   
    
    //   TF1*Cheb = new TF1("Cheb",TMath::ChebyshevPol(2),0,1.2e6);
    //H_nph_vs_pdValue->Fit(Cheb);
