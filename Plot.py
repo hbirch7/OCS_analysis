@@ -10,18 +10,15 @@ import sys
 
 filename = sys.argv[1]
 print("Processing file: " + filename)
-#f = R.TFile(filename,"read")
 f = TFile(filename,"read")
 
 H_fpgaNum = f.Get("fpgaNum")
 fpgaNumI = int(H_fpgaNum.GetMean())
 fpgaNum = str(fpgaNumI)
-print(fpgaNum)
 
 H_PBNum = f.Get("PBNum")
 PBNumI = int(H_PBNum.GetMean())
 PBNum = str(PBNumI)
-print(PBNum) 
 
 c1 = TCanvas('c1','TrigWvslnNph',1920,1080)
 H_TrigW = f.Get("lnnph mean vs TriggerWidth mean")  
@@ -76,3 +73,17 @@ c4.SetGrid()
 c4.Update()
 c4fname = "FPGA{}_CH{}_PMTPWvsPD_Value.png".format(fpgaNum,PBNum)
 c4.Print(c4fname)
+
+c5 = TCanvas('c5','TWvsPMTPW',1920,1080)
+H_TWvsPMTPW = f.Get("Trigger Width mean vs PMTPulseWidth mean")  
+H_TWvsPMTPW.Draw()
+H_TWvsPMTPW.SetMarkerStyle(20)
+Title = "Trigger width versus PMT pulse width for FPGA{}CH{}".format(fpgaNum,PBNum)
+H_TWvsPMTPW.SetTitle(Title)
+H_TWvsPMTPW.SetXTitle('Trigger width (ns)')
+H_TWvsPMTPW.SetYTitle('PMT Pulse width (ns)')
+c5.SetGrid()
+c5.Update()
+c5fname = "FPGA{}_CH{}_TriggerWidthvsPMTPulseWidth.png".format(fpgaNum,PBNum)
+c5.Print(c5fname)
+

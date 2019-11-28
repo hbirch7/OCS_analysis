@@ -149,7 +149,7 @@ void EventLoop::execute() {
    TH2F *H_lnnph_vs_TriggerWidth = new TH2F("lnnph mean vs TriggerWidth mean", "lnnph mean vs TriggerWidth mean", 1000, 0, 20, 750, 0, 75);
    TH2F *H_PMTPulseWidth_vs_nph = new TH2F("PMTPulseWidth mean vs nph mean", "PMTPulseWidth mean vs nph mean", 300, 0, 30, 12000, 0, 1.2e6);
 
-   TH2F *H_TrigWidthmean_vs_PMTPulseWidthmean = new TH2F("Trigger Width mean vs PMTPulseWidth mean", "Trigger Width mean vs PMTPulseWidth mean", 150, 0, 75, 50, 0, 25);
+   TH2F *H_TrigWidthmean_vs_PMTPulseWidthmean = new TH2F("Trigger Width mean vs PMTPulseWidth mean", "Trigger Width mean vs PMTPulseWidth mean", 750, 0, 75, 30, 0, 30);
 
    TH2F *H_tsec_vs_pdValue = new TH2F("tsec vs pdValue", "tsec vs pdValue", 70000, 0, 7000, 50, 0, 5);//
    TH2F *H_pdValue_vs_nph = new TH2F("pdValue vs nph"," pdValue vs nph",50, 0, 5, 12000, 0, 1.2e6);
@@ -342,42 +342,53 @@ void EventLoop::execute() {
        std::cout << "Event " << i << std::endl;
      }
    }
-   /*
-     int binmax =  H_lnnph_vs_TriggerWidth->GetMaximumBin();
-     double maxlnnph = H_lnnph_vs_TriggerWidth->GetXaxis()->GetBinCenter(binmax);
-     cout << "Max lnNph: " << maxlnnph << endl;
-     int binmin =  H_lnnph_vs_TriggerWidth->GetMinimumBin();
-     double minlnnph = H_lnnph_vs_TriggerWidth->GetXaxis()->GetBinCenter(binmin);
-     cout << "Min lnNph: " << minlnnph << endl;
-   */
-   TF1 *fitf_0 = new TF1("fitf_0",fitf0,6,12,4); //Trigger Width vs lnNph fit function e^6phd ~ 400 e^12 ~ 162754
+   
+   int TWbinmax = H_lnnph_vs_TriggerWidth->GetMaximumBin(); int TW_high = H_lnnph_vs_TriggerWidth->GetXaxis()->GetBinCenter(TWbinmax);
+   int TWbinmin = H_lnnph_vs_TriggerWidth->GetMinimumBin(); int TW_low = H_lnnph_vs_TriggerWidth->GetXaxis()->GetBinCenter(TWbinmin);
+   TF1 *fitf_0 = new TF1("fitf_0",fitf0,TW_low,TW_high,4);
    fitf_0->SetParameters(19.,0.25,-0.006,0.0006);
    H_lnnph_vs_TriggerWidth->Fit(fitf_0);
 
-   TF1*PMTpdVal = new TF1("PMTpdVal","pol2",0,3);
-   H_PMTPulseWidth_vs_pdValue->Fit(PMTpdVal);
-
-   TF1*PMTnphFit = new TF1("PMTnphFit","pol2",1.5,25);
+   int PWbinmax = H_PMTPulseWidth_vs_nph->GetMaximumBin(); int PW_high = H_PMTPulseWidth_vs_nph->GetXaxis()->GetBinCenter(PWbinmax);
+   //int PWbinmin = H_PMTPulseWidth_vs_nph->GetMinimumBin(); int PW_low = H_PMTPulseWidth_vs_nph->GetXaxis()->GetBinCenter(PWbinmin);
+   TF1*PMTnphFit = new TF1("PMTnphFit","pol6",3,PW_high);
    H_PMTPulseWidth_vs_nph->Fit(PMTnphFit);
 
+   int TWPWbinmax = H_lnnph_vs_TriggerWidth->GetMaximumBin(); int TWPW_high = H_lnnph_vs_TriggerWidth->GetXaxis()->GetBinCenter(TWPWbinmax);
+   //   int TWPWbinmin = H_lnnph_vs_TriggerWidth->GetMinimumBin(); int TWPW_low = H_lnnph_vs_TriggerWidth->GetXaxis()->GetBinCenter(TWPWbinmin);
+   TF1*TrigWPWFit = new TF1("TrigWPWFit","expo",20,TWPW_high);
+   H_TrigWidthmean_vs_PMTPulseWidthmean->Fit(TrigWPWFit);
+   
+   /*
+     cout << "Fitting pdNPH" << endl;
    TF1*pdValNphFit = new TF1("pdValNphFit","pol1",0,3.5);
    H_pdValue_vs_nph->Fit(pdValNphFit);
-   
-   
-   //   TF1*Cheb = new TF1("Cheb",TMath::ChebyshevPol(2),0,1.2e6);
-   //H_nph_vs_pdValue->Fit(Cheb);
+   */
    
    H_fpgaNum->Fill(fpgaBoardNumOut);
    Int_t fpga_Num = H_fpgaNum->GetMean();
    H_PBNum->Fill(pulserboardnumOut);
    Int_t PB_Num = H_PBNum->GetMean();
  
-   TF1 *fitparam = (TF1*)H_lnnph_vs_TriggerWidth->GetListOfFunctions()->FindObject("fitf_0");
-   double fitparam0 = fitparam -> GetParameter(0);
-   double fitparam1 = fitparam -> GetParameter(1);
-   double fitparam2 = fitparam -> GetParameter(2);
-   double fitparam3 = fitparam -> GetParameter(3);
-   // cout << "Fit parameters: " << fitparam0 << ", " << fitparam1 << ", " << fitparam2 << " and " << fitparam3 << endl; 
+   TF1 *TrigWparams = (TF1*)H_lnnph_vs_TriggerWidth->GetListOfFunctions()->FindObject("fitf_0");
+   double TrigWparam0 = TrigWparams -> GetParameter(0);
+   double TrigWparam1 = TrigWparams -> GetParameter(1);
+   double TrigWparam2 = TrigWparams -> GetParameter(2);
+   double TrigWparam3 = TrigWparams -> GetParameter(3);
+
+   TF1 *PWparams = (TF1*)H_PMTPulseWidth_vs_nph->GetListOfFunctions()->FindObject("PMTnphFit");
+   double PWparam0 = PWparams -> GetParameter(0);
+   double PWparam1 = PWparams -> GetParameter(1);
+   double PWparam2 = PWparams -> GetParameter(2);
+   double PWparam3 = PWparams -> GetParameter(3);
+   double PWparam4 = PWparams -> GetParameter(4);
+   double PWparam5 = PWparams -> GetParameter(5);
+   double PWparam6 = PWparams -> GetParameter(6);
+
+   TF1 *TWPWparams = (TF1*)H_TrigWidthmean_vs_PMTPulseWidthmean->GetListOfFunctions()->FindObject("TrigWPWFit");
+   double TWPWparam0 = TWPWparams -> GetParameter(0);
+   double TWPWparam1 = TWPWparams -> GetParameter(1);
+
 
    string TrigWstr = "Analysis_results/FPGA" + to_string(fpgaNum) + "_" + "CH" + to_string(PBNum) + "_TrigW_fit_parameters.txt";
    char TrigWfile[TrigWstr.size() + 1]; //String to Char converson for filename
@@ -385,8 +396,27 @@ void EventLoop::execute() {
    TrigWfile[TrigWstr.size()] = '\0';
    
    FILE *afile = fopen (TrigWfile, "w+");
-   fprintf (afile,"%d\t%d\t%3.6f\t%3.6f\t%3.6f\t%3.6f", fpga_Num, PB_Num, fitparam0, fitparam1, fitparam2, fitparam3);
+   fprintf (afile,"%d\t%d\t%3.6f\t%3.6f\t%3.6f\t%3.6f\n", fpga_Num, PB_Num, TrigWparam0, TrigWparam1, TrigWparam2, TrigWparam3);
    fclose(afile);
+
+   string PulseWstr = "Analysis_results/FPGA" + to_string(fpgaNum) + "_" + "CH" + to_string(PBNum) + "_PulseW_fit_parameters.txt";
+   char PulseWfile[PulseWstr.size() + 1]; //String to Char converson for filename
+   PulseWstr.copy(PulseWfile, PulseWstr.size() + 1);
+   PulseWfile[PulseWstr.size()] = '\0';
+   
+   FILE *bfile = fopen (PulseWfile, "w+");
+   fprintf (bfile,"%d\t%d\t%8.8f\t%8.8f\t%8.8f\t%8.8f\t%8.8f\t%8.8f\t%8.8f\n", fpga_Num, PB_Num, PWparam0, PWparam1, PWparam2, PWparam3, PWparam4, PWparam5, PWparam6);
+   fclose(bfile);
+
+   string TWPWstr = "Analysis_results/FPGA" + to_string(fpgaNum) + "_" + "CH" + to_string(PBNum) + "_TWxPW_fit_parameters.txt";
+   char TWPWfile[TWPWstr.size() + 1]; //String to Char converson for filename
+   TWPWstr.copy(TWPWfile, TWPWstr.size() + 1);
+   TWPWfile[TWPWstr.size()] = '\0';
+   
+   FILE *cfile = fopen (TWPWfile, "w+");
+   fprintf (cfile,"%d\t%d\t%3.6f\t%3.6f\n", fpga_Num, PB_Num, TWPWparam0, TWPWparam1);
+   fclose(bfile);
+
    
    outFile->Write();
    outFile->Close();
