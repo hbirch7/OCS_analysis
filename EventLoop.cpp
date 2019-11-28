@@ -415,7 +415,7 @@ void EventLoop::execute() {
    
    FILE *cfile = fopen (TWPWfile, "w+");
    fprintf (cfile,"%d\t%d\t%3.6f\t%3.6f\n", fpga_Num, PB_Num, TWPWparam0, TWPWparam1);
-   fclose(bfile);
+   fclose(cfile);
 
    
    outFile->Write();
