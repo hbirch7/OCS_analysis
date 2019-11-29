@@ -20,7 +20,9 @@ class EventLoop {
  /**
  * @brief calculates total width set from small and large widths sets
  */
- int calcWidthSetTotal(int widthSetLarge, int widthSetSmall);
+  int calcWidthSetTotal(int widthsetLarge, int widthsetSmall);
+
+  float calcWidthSetCount(float widthsetLarge, float widthsetSmall);
 
  /**
  * @brief Execute the event loop
@@ -30,20 +32,20 @@ class EventLoop {
  /**
  * @brief list of input ROOT file names
  */
- std::vector<TString> inputFiles;
+  std::vector<TString> inputFiles;
 
  /**
  * @brief Name of the TTree instance. Must be same in all files
  */
- TString treeName;
+  TString treeName;
 
- protected:
-
+protected:
+  
  /**
  * @brief Instance of the TChain class used to read the data 
  */
- TChain* m_chain = 0;
-
+  TChain* m_chain = 0;
+  
 };
 
 #endif
