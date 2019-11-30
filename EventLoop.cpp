@@ -377,7 +377,35 @@ void EventLoop::execute() {
    //   int TWPWbinmin = H_lnnph_vs_TriggerWidth->GetMinimumBin(); int TWPW_low = H_lnnph_vs_TriggerWidth->GetXaxis()->GetBinCenter(TWPWbinmin);
    TF1*TrigWPWFit = new TF1("TrigWPWFit","expo",20,TWPW_high);
    H_TrigWidthmean_vs_PMTPulseWidthmean->Fit(TrigWPWFit);
+
+   //TF1 *W5 = new TF1("W5","pol1", 5.015873, 5.98438);
+   TF1 *W5 = new TF1("W5","pol1", 5.015873, 6);
+   H_WidthSet_vs_TrigWidth->Fit(W5,"R");
+   //TF1 *W6 = new TF1("W6","pol1", 6.015873, 6.98438);
+   TF1 *W6 = new TF1("W6","pol1", 6.015873, 7);
+   H_WidthSet_vs_TrigWidth->Fit(W6,"+R");
+   //TF1 *W7 = new TF1("W7","pol1", 7.015873, 7.98438);
+   TF1 *W7 = new TF1("W7","pol1", 7.015873, 8);
+   H_WidthSet_vs_TrigWidth->Fit(W7,"+R");
+   //TF1 *W8 = new TF1("W8","pol1", 8.015873, 8.98438);
+   TF1 *W8 = new TF1("W8","pol1", 8.015873, 9);
+   H_WidthSet_vs_TrigWidth->Fit(W8,"+R");
+   //TF1 *W9 = new TF1("W9","pol1", 9.015873, 9.98438);
+   TF1 *W9 = new TF1("W9","pol1", 9.015873, 10);
+   H_WidthSet_vs_TrigWidth->Fit(W9,"+R");
+   //TF1 *W10 = new TF1("W10","pol1", 10.015873, 10.98438);
+   TF1 *W10 = new TF1("W10","pol1", 10.015873, 11);
+   H_WidthSet_vs_TrigWidth->Fit(W10,"+R");
+   //TF1 *W11 = new TF1("W11","pol1", 11.015873, 11.98438);
+   TF1 *W11 = new TF1("W11","pol1", 11.015873, 12);
+   H_WidthSet_vs_TrigWidth->Fit(W11,"+R");
+   //TF1 *W12 = new TF1("W12","pol1", 12.015873, 12.98438);
+   TF1 *W12 = new TF1("W12","pol1", 12.015873, 13);
+   H_WidthSet_vs_TrigWidth->Fit(W12,"+R");
+      
    
+  
+
    /*
      cout << "Fitting pdNPH" << endl;
    TF1*pdValNphFit = new TF1("pdValNphFit","pol1",0,3.5);
@@ -406,9 +434,8 @@ void EventLoop::execute() {
 
    TF1 *TWPWparams = (TF1*)H_TrigWidthmean_vs_PMTPulseWidthmean->GetListOfFunctions()->FindObject("TrigWPWFit");
    double TWPWparam0 = TWPWparams -> GetParameter(0);
-   double TWPWparam1 = TWPWparams -> GetParameter(1);
-
-
+   double TWPWparam1 = TWPWparams -> GetParameter(1);     
+  
    string TrigWstr = "Analysis_results/FPGA" + to_string(fpgaNum) + "_" + "CH" + to_string(PBNum) + "_TrigW_fit_parameters.txt";
    char TrigWfile[TrigWstr.size() + 1]; //String to Char converson for filename
    TrigWstr.copy(TrigWfile, TrigWstr.size() + 1);
