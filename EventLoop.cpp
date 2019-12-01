@@ -381,30 +381,68 @@ void EventLoop::execute() {
    //TF1 *W5 = new TF1("W5","pol1", 5.015873, 5.98438);
    TF1 *W5 = new TF1("W5","pol1", 5.015873, 6);
    H_WidthSet_vs_TrigWidth->Fit(W5,"R");
+   TF1 *W5param = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W5");
+   double W5param0 = W5params -> GetParameter(0);
+   double W5param1 = W5params -> GetParameter(1);
+
    //TF1 *W6 = new TF1("W6","pol1", 6.015873, 6.98438);
    TF1 *W6 = new TF1("W6","pol1", 6.015873, 7);
    H_WidthSet_vs_TrigWidth->Fit(W6,"+R");
+   TF1 *W6param = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W6");
+   double W6param0 = W6params -> GetParameter(0);
+   double W6param1 = W6params -> GetParameter(1);
+
    //TF1 *W7 = new TF1("W7","pol1", 7.015873, 7.98438);
    TF1 *W7 = new TF1("W7","pol1", 7.015873, 8);
    H_WidthSet_vs_TrigWidth->Fit(W7,"+R");
+   TF1 *W7param = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W7");
+   double W7param0 = W7params -> GetParameter(0);
+   double W7param1 = W7params -> GetParameter(1);
+
    //TF1 *W8 = new TF1("W8","pol1", 8.015873, 8.98438);
    TF1 *W8 = new TF1("W8","pol1", 8.015873, 9);
    H_WidthSet_vs_TrigWidth->Fit(W8,"+R");
+   TF1 *W8param = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W8");
+   double W8param0 = W8params -> GetParameter(0);
+   double W8param1 = W8params -> GetParameter(1);
+
    //TF1 *W9 = new TF1("W9","pol1", 9.015873, 9.98438);
    TF1 *W9 = new TF1("W9","pol1", 9.015873, 10);
    H_WidthSet_vs_TrigWidth->Fit(W9,"+R");
+   TF1 *W9param = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W9");
+   double W9param0 = W9params -> GetParameter(0);
+   double W9param1 = W9params -> GetParameter(1);
+
    //TF1 *W10 = new TF1("W10","pol1", 10.015873, 10.98438);
    TF1 *W10 = new TF1("W10","pol1", 10.015873, 11);
    H_WidthSet_vs_TrigWidth->Fit(W10,"+R");
+   TF1 *W10param = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W10");
+   double W10param0 = W10params -> GetParameter(0);
+   double W10param1 = W10params -> GetParameter(1);
+
    //TF1 *W11 = new TF1("W11","pol1", 11.015873, 11.98438);
    TF1 *W11 = new TF1("W11","pol1", 11.015873, 12);
    H_WidthSet_vs_TrigWidth->Fit(W11,"+R");
+   TF1 *W11param = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W11");
+   double W11param0 = W11params -> GetParameter(0);
+   double W11param1 = W11params -> GetParameter(1);
+
    //TF1 *W12 = new TF1("W12","pol1", 12.015873, 12.98438);
    TF1 *W12 = new TF1("W12","pol1", 12.015873, 13);
    H_WidthSet_vs_TrigWidth->Fit(W12,"+R");
-      
+   TF1 *W12param = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W12");
+   double W12param0 = W12params -> GetParameter(0);
+   double W12param1 = W12params -> GetParameter(1);
+
+
+   string TWPWstr = "Analysis_results/FPGA" + to_string(fpgaNum) + "_" + "CH" + to_string(PBNum) + "_TWxPW_fit_parameters.txt";
+   char TWPWfile[TWPWstr.size() + 1]; //String to Char converson for filename
+   TWPWstr.copy(TWPWfile, TWPWstr.size() + 1);
+   TWPWfile[TWPWstr.size()] = '\0';
    
-  
+   FILE *cfile = fopen (TWPWfile, "w+");
+   fprintf (cfile,"%d\t%d\t%3.6f\t%3.6f\n", fpga_Num, PB_Num, TWPWparam0, TWPWparam1);
+   fclose(cfile);  
 
    /*
      cout << "Fitting pdNPH" << endl;
