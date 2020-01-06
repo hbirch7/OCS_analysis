@@ -123,7 +123,7 @@ void EventLoop::execute() {
    int fpgaNum = fpgaBoardNumOut; 
    int PBNum = pulserboardnumOut;
    string filenamestr = "Analysis_results/FPGA" + to_string(fpgaNum) + "_" + "CH" + to_string(PBNum) + "_Results.root";
-   //string filenamestr = "FPGA" + to_string(fpgaNum) + "_" + "CH" + to_string(PBNum) + "_Results.root";
+   //   string filenamestr = "Pre-SURF_datatest/testdata/FPGA" + to_string(fpgaNum) + "_" + "CH" + to_string(PBNum) + "_Results.root";
    char filename[filenamestr.size() + 1]; //String to Char converson for filename
    filenamestr.copy(filename, filenamestr.size() + 1);
    filename[filenamestr.size()] = '\0';
@@ -364,12 +364,18 @@ void EventLoop::execute() {
      }
    }
    
+
+
+
+   //Trigger Width Fit Function - DO NOT DELETE!
    int TWbinmax = H_lnnph_vs_TriggerWidth->GetMaximumBin(); int TW_high = H_lnnph_vs_TriggerWidth->GetXaxis()->GetBinCenter(TWbinmax);
    int TWbinmin = H_lnnph_vs_TriggerWidth->GetMinimumBin(); int TW_low = H_lnnph_vs_TriggerWidth->GetXaxis()->GetBinCenter(TWbinmin);
    TF1 *fitf_0 = new TF1("fitf_0",fitf0,TW_low,TW_high,4);
    fitf_0->SetParameters(19.,0.25,-0.006,0.0006);
    H_lnnph_vs_TriggerWidth->Fit(fitf_0);
-
+   
+   
+   
    /*
    int PWbinmax = H_PMTPulseWidth_vs_nph->GetMaximumBin(); int PW_high = H_PMTPulseWidth_vs_nph->GetXaxis()->GetBinCenter(PWbinmax);
    //int PWbinmin = H_PMTPulseWidth_vs_nph->GetMinimumBin(); int PW_low = H_PMTPulseWidth_vs_nph->GetXaxis()->GetBinCenter(PWbinmin);
