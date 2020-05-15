@@ -14,6 +14,7 @@ eventLoop.treeName = "tree"
 
 # The data are stored in multiple files
 eventLoop.inputFiles.push_back('SURF_datastore/' + fname)
+#eventLoop.inputFiles.push_back('Pre-SURF_datatest/testdata/' + fname)
 
 # initialize and execute the event loop
 eventLoop.initialize()
