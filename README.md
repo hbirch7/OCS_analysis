@@ -8,5 +8,7 @@ Clean the make file using the command: $ make clean
 
 Compile the analysis code using the command $ make
 
-To run an analysis use the following command $ python2.7 runMe.py <filename>
+To run an analysis use the following command $ python2.7 runMe.py filename
+
+To print the plots us the following command $ python2.7 Plot.py Analysis_results/FPGA#_CH#_Results.root
 
