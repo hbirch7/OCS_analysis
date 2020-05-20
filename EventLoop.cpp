@@ -48,12 +48,14 @@ void EventLoop::initialize() {
 
 // Iterate from 0 (smallest possible set point)  to  n (largest possible set point) in increments of 1 for every possible set point.
 int EventLoop::calcWidthSetTotal(int widthsetLarge, int widthsetSmall){
-  return ((widthsetLarge-5) * 64) + widthsetSmall;
+  return ((widthsetLarge-5) * 63) + widthsetSmall;
+  //  return ((widthsetLarge-5) * 64) + widthsetSmall;
 }
 
 
 float EventLoop::calcWidthSetCount(float widthsetLarge, float widthsetSmall){
-  return widthsetLarge + (widthsetSmall / 64);
+  return widthsetLarge + (widthsetSmall / 63);
+  //  return widthsetLarge + (widthsetSmall / 64);
 }
 
 void EventLoop::execute() {
@@ -187,7 +189,7 @@ void EventLoop::execute() {
       // these histograms are filled with data from each set point, once a new set point is reached a gaussian will be fitted to these histograms
       // fracError set to 0.1 to exclude the first measurement on each small width set where widthsetLarge < 6
       // PMTPulseWidth set to 1.5 to exclude noise at the lower limit
-      if (((fracError < 0.1) && PMTPulseWidth > 1.5 ) | ( (widthsetLarge < 6) & (repeatReadingAtWidth > 1000)  )){
+      if (((fracError < 0.1) && PMTPulseWidth > 1.5 ) | ( (widthsetLarge < 13) & (repeatReadingAtWidth > 1000)  )){
 	H_nph->Fill(nph);
 	H_triggerWidth->Fill(triggerWidth);
 	H_PMTPulseWidth->Fill(PMTPulseWidth);
