@@ -49,13 +49,11 @@ void EventLoop::initialize() {
 // Iterate from 0 (smallest possible set point)  to  n (largest possible set point) in increments of 1 for every possible set point.
 int EventLoop::calcWidthSetTotal(int widthsetLarge, int widthsetSmall){
   return ((widthsetLarge-5) * 63) + widthsetSmall;
-  //  return ((widthsetLarge-5) * 64) + widthsetSmall;
 }
 
 
 float EventLoop::calcWidthSetCount(float widthsetLarge, float widthsetSmall){
   return widthsetLarge + (widthsetSmall / 63);
-  //  return widthsetLarge + (widthsetSmall / 64);
 }
 
 void EventLoop::execute() {
@@ -257,7 +255,7 @@ void EventLoop::execute() {
 	trigWidth_setPoint->GetXaxis()->SetRangeUser( (triggerWidth_mean - (triggerWidth_spread*5)) , (triggerWidth_mean + (triggerWidth_spread*5))); 
 	std::string trigWidth_histoSetPointName = "trigWidth_" + histoSetPointNum;
 	trigWidth_setPoint->SetName(trigWidth_histoSetPointName.c_str()); 
-	trigWidth_setPoint->Write();
+	//	trigWidth_setPoint->Write();
 
 	// PMT PULSES
 	dPMTPulses->cd();
@@ -276,7 +274,7 @@ void EventLoop::execute() {
 	PMTPulseWidth_setPoint->GetXaxis()->SetRangeUser( (PMTPulseWidth_mean - (PMTPulseWidth_spread*5)) , (PMTPulseWidth_mean + (PMTPulseWidth_spread*5)));
 	std::string PMTPulseWidth_histoSetPointName = "PMTPulseWidth_" + histoSetPointNum;
 	PMTPulseWidth_setPoint->SetName(PMTPulseWidth_histoSetPointName.c_str());
-	PMTPulseWidth_setPoint->Write();
+	//	PMTPulseWidth_setPoint->Write();
 	
 	outFile->cd();
 
