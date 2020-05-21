@@ -232,7 +232,7 @@ void EventLoop::execute() {
 	cout << "lnNphe: " << lnNphe[eventNum] << endl;
 
 	TH1* nph_setPoint = (TH1*)H_nph->Clone();
-	nph_setPoint->GetXaxis()->SetRangeUser( (nph_mean - (nph_spread*5)) , (nph_mean + (nph_spread*5))); // set the range +/- 5 stdDevs around mean
+	nph_setPoint->GetXaxis()->SetRangeUser( (nph_mean - (nph_spread*3)) , (nph_mean + (nph_spread*3))); // set the range +/- 3 stdDevs around mean
 	std::string nph_histoSetPointName = "nph_" + histoSetPointNum; // set the name to be unique so dont save over it, set the name to be the large / small widths
 	nph_setPoint->SetName(nph_histoSetPointName.c_str());
      
@@ -242,7 +242,8 @@ void EventLoop::execute() {
 	int binmin = H_triggerWidth->GetMinimumBin(); int x_low = H_triggerWidth->GetXaxis()->GetBinCenter(binmin);
 	TF1* f2 = new TF1("f2", "gaus",  x_low, x_high); //Fit Gaussian of the Trigger Width data from this set point 
 	H_triggerWidth->Fit("f2", "S");
-	double triggerWidth_mean = f2->GetParameter(1);
+	//	double triggerWidth_mean = f2->GetParameter(1);
+	double triggerWidth_mean = H_triggerWidth->GetMean();
 	trigW[eventNum] = triggerWidth_mean;
 	cout << "Trigger Width: " << trigW[eventNum] << endl;
 	double triggerWidth_spread = f2->GetParameter(2);
@@ -252,7 +253,7 @@ void EventLoop::execute() {
 	H_triggerWidtherr->Fill(triggerWidth_StdDev);
 	
 	TH1* trigWidth_setPoint = (TH1*)H_triggerWidth->Clone();
-	trigWidth_setPoint->GetXaxis()->SetRangeUser( (triggerWidth_mean - (triggerWidth_spread*5)) , (triggerWidth_mean + (triggerWidth_spread*5))); 
+	trigWidth_setPoint->GetXaxis()->SetRangeUser( (triggerWidth_mean - (triggerWidth_spread*3)) , (triggerWidth_mean + (triggerWidth_spread*3))); 
 	std::string trigWidth_histoSetPointName = "trigWidth_" + histoSetPointNum;
 	trigWidth_setPoint->SetName(trigWidth_histoSetPointName.c_str()); 
 	//	trigWidth_setPoint->Write();
@@ -263,7 +264,8 @@ void EventLoop::execute() {
 	binmin = H_PMTPulseWidth->GetMinimumBin(); x_low = H_PMTPulseWidth->GetXaxis()->GetBinCenter(binmin);
 	TF1* f3 = new TF1("f3", "gaus",  x_low, x_high); // Fit Gaussian of the PMT Width data from this set point 
 	H_PMTPulseWidth->Fit("f3", "S");
-	double PMTPulseWidth_mean = f3->GetParameter(1);
+	//	double PMTPulseWidth_mean = f3->GetParameter(1);
+	double PMTPulseWidth_mean = H_PMTPulseWidth->GetMean();
 	PMTPW[eventNum] = PMTPulseWidth_mean;
 	cout << "Pulse Width: " << PMTPW[eventNum] << endl;
 	double PMTPulseWidth_spread = f3->GetParameter(2);
@@ -272,7 +274,7 @@ void EventLoop::execute() {
 	cout << "Pulse Width Error: " << PMTPWe[eventNum] << endl;
        
 	TH1* PMTPulseWidth_setPoint = (TH1*)H_PMTPulseWidth->Clone();
-	PMTPulseWidth_setPoint->GetXaxis()->SetRangeUser( (PMTPulseWidth_mean - (PMTPulseWidth_spread*5)) , (PMTPulseWidth_mean + (PMTPulseWidth_spread*5)));
+	PMTPulseWidth_setPoint->GetXaxis()->SetRangeUser( (PMTPulseWidth_mean - (PMTPulseWidth_spread*3)) , (PMTPulseWidth_mean + (PMTPulseWidth_spread*3)));
 	std::string PMTPulseWidth_histoSetPointName = "PMTPulseWidth_" + histoSetPointNum;
 	PMTPulseWidth_setPoint->SetName(PMTPulseWidth_histoSetPointName.c_str());
 	//	PMTPulseWidth_setPoint->Write();
@@ -363,57 +365,57 @@ void EventLoop::execute() {
     TF1*TWfit = new TF1("TWfit","pol4", 15,TrigW_high);
     H_TriggerWidth_vs_lnnph->Fit(TWfit);
 
-    TF1 *W5 = new TF1("W5","pol3", 5, 6);
-    //    TF1 *W5 = new TF1("W5","pol3", 5.015873, 6);
+    TF1 *W5 = new TF1("W5","pol1", 5, 6);
+    //    TF1 *W5 = new TF1("W5","pol1", 5.015873, 6);
     H_WidthSet_vs_TrigWidth->Fit(W5,"R");
     TF1 *W5params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W5");
     double W5param0 = W5params -> GetParameter(0);
     double W5param1 = W5params -> GetParameter(1);
 
-    TF1 *W6 = new TF1("W6","pol3", 6, 7);
-    //TF1 *W6 = new TF1("W6","pol3", 6.015873, 7);
+    TF1 *W6 = new TF1("W6","pol1", 6, 7);
+    //TF1 *W6 = new TF1("W6","pol1", 6.015873, 7);
     H_WidthSet_vs_TrigWidth->Fit(W6,"+R");
     TF1 *W6params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W6");
     double W6param0 = W6params -> GetParameter(0);
     double W6param1 = W6params -> GetParameter(1);
 
-    TF1 *W7 = new TF1("W7","pol3", 7, 8);
-    //TF1 *W7 = new TF1("W7","pol3", 7.015873, 8);
+    TF1 *W7 = new TF1("W7","pol1", 7, 8);
+    //TF1 *W7 = new TF1("W7","pol1", 7.015873, 8);
     H_WidthSet_vs_TrigWidth->Fit(W7,"+R");
     TF1 *W7params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W7");
     double W7param0 = W7params -> GetParameter(0);
     double W7param1 = W7params -> GetParameter(1);
 
-    TF1 *W8 = new TF1("W8","pol3", 8, 9);
-    //TF1 *W8 = new TF1("W8","pol3", 8.015873, 9);
+    TF1 *W8 = new TF1("W8","pol1", 8, 9);
+    //TF1 *W8 = new TF1("W8","pol1", 8.015873, 9);
     H_WidthSet_vs_TrigWidth->Fit(W8,"+R");
     TF1 *W8params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W8");
     double W8param0 = W8params -> GetParameter(0);
     double W8param1 = W8params -> GetParameter(1);
 
-    TF1 *W9 = new TF1("W9","pol3", 9, 10);
-    //TF1 *W9 = new TF1("W9","pol3", 9.015873, 10);
+    TF1 *W9 = new TF1("W9","pol1", 9, 10);
+    //TF1 *W9 = new TF1("W9","pol1", 9.015873, 10);
     H_WidthSet_vs_TrigWidth->Fit(W9,"+R");
     TF1 *W9params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W9");
     double W9param0 = W9params -> GetParameter(0);
     double W9param1 = W9params -> GetParameter(1);
 
-    TF1 *W10 = new TF1("W10","pol3", 10, 11);
-    //TF1 *W10 = new TF1("W10","pol3", 10.015873, 11);
+    TF1 *W10 = new TF1("W10","pol1", 10, 11);
+    //TF1 *W10 = new TF1("W10","pol1", 10.015873, 11);
     H_WidthSet_vs_TrigWidth->Fit(W10,"+R");
     TF1 *W10params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W10");
     double W10param0 = W10params -> GetParameter(0);
     double W10param1 = W10params -> GetParameter(1);
 
-    TF1 *W11 = new TF1("W11","pol3", 11, 12);
-    //TF1 *W11 = new TF1("W11","pol3", 11.015873, 12);
+    TF1 *W11 = new TF1("W11","pol1", 11, 12);
+    //TF1 *W11 = new TF1("W11","pol1", 11.015873, 12);
     H_WidthSet_vs_TrigWidth->Fit(W11,"+R");
     TF1 *W11params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W11");
     double W11param0 = W11params -> GetParameter(0);
     double W11param1 = W11params -> GetParameter(1);
 
-    TF1 *W12 = new TF1("W12","pol3", 12, 13);
-    //TF1 *W12 = new TF1("W12","pol3", 12.015873, 13);
+    TF1 *W12 = new TF1("W12","pol1", 12, 13);
+    //TF1 *W12 = new TF1("W12","pol1", 12.015873, 13);
     H_WidthSet_vs_TrigWidth->Fit(W12,"+R");
     TF1 *W12params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W12");
     double W12param0 = W12params -> GetParameter(0);
@@ -461,6 +463,17 @@ void EventLoop::execute() {
     G_PMTPW_vs_TW->Draw("P");
     c3->Update();
     c3->Write();
+    /*
+    TGraphErrors* G_TWS_vs_Nph = new TGraphErrors(size,lnNph,twStep,lnNphe,0);
+    TCanvas *c4 = new TCanvas("c4", "c4",10,65,1920,1080);
+    TH2F *TWS_vs_Nph = new TH2F("TWS_vs_Nph","TriggerWidthStep vs Nph",1000,1,15,567,4,14);
+    TWS_vs_Nph->SetStats("kFalse");
+    TWS_vs_Nph->Draw();
+    G_TWS_vs_Nph->SetMarkerStyle(6);
+    G_TWS_vs_Nph->Draw("P");
+    c4->Update();
+    c4->Write();
+    */
     
     H_fpgaNum->Fill(fpgaBoardNumOut);
     Int_t fpga_Num = H_fpgaNum->GetMean();
