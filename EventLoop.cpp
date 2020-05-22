@@ -209,7 +209,7 @@ void EventLoop::execute() {
   int arrayIterator = 0;
 
   // EVENT LOOP - Getting the Mean of each set point
-  for(int eventNum = 0; eventNum < m_chain->GetEntries(); ++eventNum) {
+  for(int eventNum = 0; eventNum <= m_chain->GetEntries(); ++eventNum) {
     m_chain->GetEntry(eventNum); // Get the event data
       
     H_tsec_vs_SmallWidthSet->Fill(tsec, widthsetSmall);
@@ -272,7 +272,6 @@ void EventLoop::execute() {
       float totalWidthSetCount = calcWidthSetCount(widthsetLarge, widthsetSmall);
 
       twStep[arrayIterator+1] = totalWidthSetCount;
-      cout << "totalWidthSetcount: " <<twStep[arrayIterator] << endl;
 	
       // NPHs
       std::cout<< " Got " << H_nph->GetEntries() << "  entries in histo. Mean is " << H_nph->GetMean() << " at width point " << totalWidthSet << " (large width " << widthsetLarge << ", small width " << widthsetSmall << ") \n";
@@ -383,7 +382,7 @@ void EventLoop::execute() {
   TH1F *H_tsec_PDHigh = new TH1F("tsec PDHigh", "tsec when PD High", 1000, 0, 20000);
 
   // event loop
-  for(int i=0; i< m_chain->GetEntries(); ++i) {
+  for(int i=0; i<= m_chain->GetEntries(); ++i) {
     m_chain->GetEntry(i);
    
     // now we can work with the variables, e.g. print them
