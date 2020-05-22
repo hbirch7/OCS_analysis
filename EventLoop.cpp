@@ -13,6 +13,9 @@
 #include "TStyle.h"
 #include "TGraphErrors.h"
 #include <vector>
+#include "TImage.h"
+#include "TROOT.h"
+
 
 using namespace std;
 
@@ -59,6 +62,9 @@ float EventLoop::calcWidthSetCount(float widthsetLarge, float widthsetSmall){
 }
 
 void EventLoop::execute() {
+
+  gROOT->SetBatch(1);
+
   // sanity check. m_chain must not be zero
   if(!m_chain) {
     throw std::runtime_error("Calling execute while the event loop was not initialized.");
@@ -124,14 +130,13 @@ void EventLoop::execute() {
   Double_t PMTPWe[size];
   Double_t twStep[size];
 
-
   string filenamestr;
   int PBNum;
   int fpgaNum;
   TFile *outFile;
 
   //Looping over first event to get FPGANum and PBNum for output file name
-  for(int eventNum = 1; eventNum <= 1; ++eventNum) { 
+  for(int eventNum = 0; eventNum < 1; ++eventNum) { 
     m_chain->GetEntry(eventNum); // Get the event data
     fpgaNum = fpgaBoardNumOut; 
     PBNum = pulserboardnumOut;
@@ -180,8 +185,28 @@ void EventLoop::execute() {
   TH1F *H_fpgaNum = new TH1F("fpgaNum", "fpgaNum", 10, 0, 9);
   TH1F *H_PBNum = new TH1F("PBNum", "PBNum", 10, 0, 9);
 
+  TH1F *H_triggerWidth_6_1 = new TH1F("triggerWidth_6_1", "triggerWidth_6_1", 3000, 0, 75);
+  TH1F *H_PMTPulseWidth_6_1 = new TH1F("PMTPulseWidth_6_1", "PMTPulseWidth_6_1", 3000, 0, 75);
+
+  TH1F *H_triggerWidth_6_22 = new TH1F("triggerWidth_6_22", "triggerWidth_6_22", 3000, 0, 75);
+  TH1F *H_PMTPulseWidth_6_22 = new TH1F("PMTPulseWidth_6_22", "PMTPulseWidth_6_22", 3000, 0, 75);
+
+  TH1F *H_triggerWidth_7_1 = new TH1F("triggerWidth_7_1", "triggerWidth_7_1", 3000, 0, 75);
+  TH1F *H_PMTPulseWidth_7_1 = new TH1F("PMTPulseWidth_7_1", "PMTPulseWidth_7_1", 3000, 0, 75);
+
+  TH1F *H_triggerWidth_7_22 = new TH1F("triggerWidth_7_22", "triggerWidth_7_22", 3000, 0, 75);
+  TH1F *H_PMTPulseWidth_7_22 = new TH1F("PMTPulseWidth_7_22", "PMTPulseWidth_7_22", 3000, 0, 75);
+
+  TH2F *H_triggerWidth_vs_small = new TH2F("triggerWidth_vs_small", "triggerWidth_vs_small", 10,0,100, 9000, 25, 60);
+
+  TH1F *H_triggerWidthMean_7_1 = new TH1F("triggerWidthMean_7_1", "triggerWidthMean_7_1", 3000, 0, 75);
+  TH2F *H_triggerWidthMean_vs_small = new TH2F("triggerWidthMean_vs_small", "triggerWidthMean_vs_small", 110, -10, 100, 9000, 20, 60);
+
+
   int numMeasurementsAtEachPoint = 4000; //This is need for Full range widthsetLarge[1-63] widthsetSmall[5-11] (ie Slow test procedure)
   int repeatReadingAtWidth = 0;
+  
+  int arrayIterator = 0;
 
   // EVENT LOOP - Getting the Mean of each set point
   for(int eventNum = 0; eventNum < m_chain->GetEntries(); ++eventNum) {
@@ -198,11 +223,37 @@ void EventLoop::execute() {
     // these histograms are filled with data from each set point, once a new set point is reached a gaussian will be fitted to these histograms
     // fracError set to 0.1 to exclude the first measurement on each small width set where widthsetLarge < 6
     // PMTPulseWidth set to 1.5 to exclude noise at the lower limit
+
     if (((fracError < 0.1) && PMTPulseWidth > 1.5 ) | ( (widthsetLarge < 6) & (repeatReadingAtWidth > 1000)  )){
+    //    if ( ((fracError < 0.1) && PMTPulseWidth > 1.5 ) && (repeatReadingAtWidth > 2000)){
       H_nph->Fill(nph);
       H_triggerWidth->Fill(triggerWidth);
       H_PMTPulseWidth->Fill(PMTPulseWidth);
       H_triggerWidth_div_PMTPulseWidth->Fill(triggerWidth / PMTPulseWidth);
+    }
+
+    if (widthsetSmall == 1 && widthsetLarge == 6){
+      H_triggerWidth_6_1->Fill(triggerWidth);
+      H_PMTPulseWidth_6_1->Fill(PMTPulseWidth);
+    }
+
+    if (widthsetSmall == 22 && widthsetLarge == 6){
+      H_triggerWidth_6_22->Fill(triggerWidth);
+      H_PMTPulseWidth_6_22->Fill(PMTPulseWidth);
+    }
+
+
+    if (widthsetSmall == 1 && widthsetLarge == 7){
+      H_triggerWidth_7_1->Fill(triggerWidth);
+      H_PMTPulseWidth_7_1->Fill(PMTPulseWidth);
+    }
+    if (widthsetSmall == 22 && widthsetLarge == 7){
+      H_triggerWidth_7_22->Fill(triggerWidth);
+      H_PMTPulseWidth_7_22->Fill(PMTPulseWidth);
+    }
+
+    if (widthsetLarge > 5){
+      H_triggerWidth_vs_small->Fill(widthsetSmall, triggerWidth);
     }
 
     // once eventNum (the event number loop) has reached the number of iterations in each measurement then fit a gaussian, get the mean and clear the histograms
@@ -210,7 +261,6 @@ void EventLoop::execute() {
     // if H_nph has entries, try and fit it.  10,000 = how many entries per step point where data is taken 
     // NOTE : number of entries in histo may not be 10000 based on error. 
     if ( eventNum % numMeasurementsAtEachPoint == 0 && eventNum!=0){
-
       int LargeStepPoint = widthsetLarge;
       int SmallStepPoint = widthsetSmall;
 
@@ -221,26 +271,26 @@ void EventLoop::execute() {
       int totalWidthSet = calcWidthSetTotal(widthsetLarge, widthsetSmall);
       float totalWidthSetCount = calcWidthSetCount(widthsetLarge, widthsetSmall);
 
-      twStep[eventNum] = totalWidthSetCount;
-      cout << "totalWidthSetcount: " <<twStep[eventNum] << endl;
+      twStep[arrayIterator+1] = totalWidthSetCount;
+      cout << "totalWidthSetcount: " <<twStep[arrayIterator] << endl;
 	
       // NPHs
       std::cout<< " Got " << H_nph->GetEntries() << "  entries in histo. Mean is " << H_nph->GetMean() << " at width point " << totalWidthSet << " (large width " << widthsetLarge << ", small width " << widthsetSmall << ") \n";
       dnph->cd();
       double nph_mean = H_nph->GetMean();// Too few entries from power meter (nph) to fit gaussian of the nph data - just get mean of hist
 
-      Nph[eventNum] = nph_mean;
-      cout << "Nph: " << Nph[eventNum] << endl;
+      Nph[arrayIterator] = nph_mean;
+      cout << "Nph: " << Nph[arrayIterator] << endl;
       double nph_spread = H_nph->GetStdDev();
-      Nphe[eventNum] = nph_spread;
-      cout << "Nphe: " << Nphe[eventNum] << endl;
+      Nphe[arrayIterator] = nph_spread;
+      cout << "Nphe: " << Nphe[arrayIterator] << endl;
       H_nph_stdDev->Fill(nph_spread);
       double lnnph_mean = TMath::Log(nph_mean);
-      lnNph[eventNum] = lnnph_mean;
-      cout << "lnNph: " << lnNph[eventNum] << endl;
+      lnNph[arrayIterator] = lnnph_mean;
+      cout << "lnNph: " << lnNph[arrayIterator] << endl;
       double lnnph_spread = 0.434*(nph_spread/nph_mean);
-      lnNphe[eventNum] = lnnph_spread;
-      cout << "lnNphe: " << lnNphe[eventNum] << endl;
+      lnNphe[arrayIterator] = lnnph_spread;
+      cout << "lnNphe: " << lnNphe[arrayIterator] << endl;
 
       TH1* nph_setPoint = (TH1*)H_nph->Clone();
       nph_setPoint->GetXaxis()->SetRangeUser( (nph_mean - (nph_spread*5)) , (nph_mean + (nph_spread*5))); // set the range +/- 5 stdDevs around mean
@@ -251,15 +301,18 @@ void EventLoop::execute() {
       dTrigPulses->cd();
       int binmax = H_triggerWidth->GetMaximumBin(); int x_high = H_triggerWidth->GetXaxis()->GetBinCenter(binmax);
       int binmin = H_triggerWidth->GetMinimumBin(); int x_low = H_triggerWidth->GetXaxis()->GetBinCenter(binmin);
+
       TF1* f2 = new TF1("f2", "gaus",  x_low, x_high); //Fit Gaussian of the Trigger Width data from this set point 
       H_triggerWidth->Fit("f2", "S");
       double triggerWidth_mean = f2->GetParameter(1);
-      trigW[eventNum] = triggerWidth_mean;
-      cout << "Trigger Width: " << trigW[eventNum] << endl;
+      H_triggerWidthMean_7_1->Fill(triggerWidth_mean);
+      H_triggerWidthMean_vs_small->Fill(widthsetSmall,triggerWidth_mean);
+      trigW[arrayIterator] = triggerWidth_mean;
+      cout << "Trigger Width: " << trigW[arrayIterator] << endl;
       double triggerWidth_spread = f2->GetParameter(2);
       double triggerWidth_StdDev = H_triggerWidth->GetStdDev();
-      trigWe[eventNum] = triggerWidth_StdDev;
-      cout << "TriggerWidth Error: " << trigWe[eventNum] << endl;
+      trigWe[arrayIterator] = triggerWidth_StdDev;
+      cout << "TriggerWidth Error: " << trigWe[arrayIterator] << endl;
       H_triggerWidtherr->Fill(triggerWidth_StdDev);
 	
       TH1* trigWidth_setPoint = (TH1*)H_triggerWidth->Clone();
@@ -275,11 +328,11 @@ void EventLoop::execute() {
       TF1* f3 = new TF1("f3", "gaus",  x_low, x_high); // Fit Gaussian of the PMT Width data from this set point 
       H_PMTPulseWidth->Fit("f3", "S");
       double PMTPulseWidth_mean = f3->GetParameter(1);
-      PMTPW[eventNum] = PMTPulseWidth_mean;
-      cout << "Pulse Width: " << PMTPW[eventNum] << endl;
+      PMTPW[arrayIterator] = PMTPulseWidth_mean;
+      cout << "Pulse Width: " << PMTPW[arrayIterator] << endl;
       double PMTPulseWidth_spread = f3->GetParameter(2);
-      PMTPWe[eventNum] = PMTPulseWidth_spread;
-      cout << "Pulse Width Error: " << PMTPWe[eventNum] << endl;
+      PMTPWe[arrayIterator] = PMTPulseWidth_spread;
+      cout << "Pulse Width Error: " << PMTPWe[arrayIterator] << endl;
        
       TH1* PMTPulseWidth_setPoint = (TH1*)H_PMTPulseWidth->Clone();
       PMTPulseWidth_setPoint->GetXaxis()->SetRangeUser( (PMTPulseWidth_mean - (PMTPulseWidth_spread*5)) , (PMTPulseWidth_mean + (PMTPulseWidth_spread*5)));
@@ -311,6 +364,8 @@ void EventLoop::execute() {
       H_nph->Reset();
       H_triggerWidth->Reset();
       H_PMTPulseWidth->Reset();
+
+      arrayIterator++;
     }
     repeatReadingAtWidth++;
   }
@@ -322,7 +377,7 @@ void EventLoop::execute() {
   TH2F *H_TrigWidth_vs_nph_2 = new TH2F("TrigWidth_vs_nph", "H_TrigWidth_vs_nph", 500, 0, 50, 1000, 0, 500000);
   TH2F *H_PMTPulseWidth_vs_nph_2 = new TH2F("PMT Pulse Width vs phd", "PMT Pulse Width vs phd", 500, 0, 50, 1000, 0, 500000);
   TH2F *H_widthSet_vs_nph = new TH2F("H_widthSet_vs_nph", "H_widthSet_vs_nph", 700, 0, 700, 1000, 0, 500000);
-  TH2F *H_TrigWidth_vs_PMTPulseWidth = new TH2F("H_TrigWidth_vs_PMTPulseWidth", "H_TrigWidth_vs_PMTPulseWidth", 150, 0, 75, 50, 0, 25);
+  TH2F *H_TrigWidth_vs_PMTPulseWidth = new TH2F("H_TrigWidth_vs_PMTPulseWidth", "H_TrigWidth_vs_PMTPulseWidth", 300, 0, 75, 60, 0, 30);
   TH1F *H_nph_PDHigh = new TH1F("nph PDHigh", "nph when PD High", 1000, 0, 250000);
   TH1F *H_nphe_PDHigh = new TH1F("nphe PDHigh", "nph when PD High", 1000, 0, 250000);
   TH1F *H_tsec_PDHigh = new TH1F("tsec PDHigh", "tsec when PD High", 1000, 0, 20000);
@@ -435,6 +490,7 @@ void EventLoop::execute() {
   //TF1 *W12 = new TF1("W12","pol1", 12.015873, 13);
   //H_WidthSet_vs_TrigWidth->Fit(FullW,"+R");
     
+
   TGraphErrors* G_TW_vs_Nph = new TGraphErrors(size,lnNph,trigW,0,trigWe);
   TCanvas *c = new TCanvas("c", "c",10,65,700,500);
   TH2F *TW_vs_Nph = new TH2F("TW_vs_Nph","TW_vs_Nph",1000,0,20,5500,15,70);
@@ -444,6 +500,21 @@ void EventLoop::execute() {
   G_TW_vs_Nph->Draw("P");
   c->Update();
   c->Write();
+
+
+  // Make TGraph of TrigWidth vs PMT Pulse Width
+  TImage *img = TImage::Create();
+  TCanvas *c1 = new TCanvas("c1", "c1",10,65,700,500);
+  TGraphErrors* gr = new TGraphErrors(size,trigW,PMTPW, trigWe, PMTPWe);
+  gr->Draw("P*");
+  c1->Update();
+  c1->Write();
+  img->FromPad(c1);
+  img->WriteImage("canvas4.png");
+
+
+
+
     
   TGraphErrors* G_TW_vs_TWS = new TGraphErrors(size,twStep,trigW,0,trigWe);
   TCanvas *c2 = new TCanvas("c2", "c2",10,65,700,500);
