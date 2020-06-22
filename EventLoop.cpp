@@ -117,21 +117,22 @@ void EventLoop::execute() {
   m_chain->SetBranchAddress("pdValue", &pdValue);
 
   const int size = 164000;
-  Double_t Nph[size];
-  Double_t Nphe[size];
-  Double_t lnNph[size];
-  Double_t lnNphe[size];
-  Double_t trigW[size];
-  Double_t trigWe[size];
-  Double_t PMTPW[size];
-  Double_t PMTPWe[size];
-  Double_t twStep[size];
+  Float_t Nph[size];
+  Float_t Nphe[size];
+  Float_t NphCalc[size];
+  Float_t lnNph[size];
+  Float_t lnNphe[size];
+  Float_t trigW[size];
+  Float_t trigWe[size];
+  Float_t PMTPW[size];
+  Float_t PMTPWe[size];
+  Float_t twStep[size];
 
   string filenamestr;
   int PBNum;
   int fpgaNum;
   TFile *outFile;
-
+  
   //Looping over first event to get FPGANum and PBNum for output file name
   for(int eventNum = 0; eventNum < 1; ++eventNum) { 
     m_chain->GetEntry(eventNum); // Get the event data
@@ -246,7 +247,7 @@ void EventLoop::execute() {
       H_triggerWidth_vs_small->Fill(widthsetSmall, triggerWidth);
     }
 
-    
+
     // once eventNum (the event number loop) has reached the number of iterations in each measurement then fit a gaussian, get the mean and clear the histograms
     // if eventNumber exactly divisible by numMeasurementsAtEachPoint
     // if H_nph has entries, try and fit it.  10,000 = how many entries per step point where data is taken 
@@ -269,21 +270,24 @@ void EventLoop::execute() {
       // NPHs
       std::cout<< " Got " << H_nph->GetEntries() << "  entries in histo. Mean is " << H_nph->GetMean() << " at width point " << totalWidthSet << " (large width " << widthsetLarge << ", small width " << widthsetSmall << ") \n";
       dnph->cd();
-      double nph_mean = H_nph->GetMean();// Too few entries from power meter (nph) to fit gaussian of the nph data - just get mean of hist
-
+      float nph_mean = H_nph->GetMean();// Too few entries from power meter (nph) to fit gaussian of the nph data - just get mean of hist
       Nph[arrayIterator] = nph_mean;
       cout << "Nph: " << Nph[arrayIterator] << endl;
-      double nph_spread = H_nph->GetStdDev();
+      float nph_spread = H_nph->GetStdDev();
       Nphe[arrayIterator] = nph_spread;
       cout << "Nphe: " << Nphe[arrayIterator] << endl;
       H_nph_stdDev->Fill(nph_spread);
-      double lnnph_mean = TMath::Log(nph_mean);
+      float lnnph_mean = TMath::Log(nph_mean);
       lnNph[arrayIterator] = lnnph_mean;
       cout << "lnNph: " << lnNph[arrayIterator] << endl;
-      double lnnph_spread = 0.434*(nph_spread/nph_mean);
+      float lnnph_spread = 0.434*(nph_spread/nph_mean);
       lnNphe[arrayIterator] = lnnph_spread;
       cout << "lnNphe: " << lnNphe[arrayIterator] << endl;
+      float NphCalcVal = nph_spread/nph_mean;
+      NphCalc[arrayIterator] = NphCalcVal;
+      cout << "NphCalc: " << NphCalc[arrayIterator] << endl;
 
+      
       TH1* nph_setPoint = (TH1*)H_nph->Clone();
       nph_setPoint->GetXaxis()->SetRangeUser( (nph_mean - (nph_spread*3)) , (nph_mean + (nph_spread*3))); // set the range +/- 3 stdDevs around mean
       std::string nph_histoSetPointName = "nph_" + histoSetPointNum; // set the name to be unique so dont save over it, set the name to be the large / small widths
@@ -295,12 +299,12 @@ void EventLoop::execute() {
       int binmin = H_triggerWidth->GetMinimumBin(); int x_low = H_triggerWidth->GetXaxis()->GetBinCenter(binmin);
       TF1* f2 = new TF1("f2", "gaus",  x_low, x_high); //Fit Gaussian of the Trigger Width data from this set point 
       H_triggerWidth->Fit("f2", "S");
-      //	double triggerWidth_mean = f2->GetParameter(1);
-      double triggerWidth_mean = H_triggerWidth->GetMean();
+      //	float triggerWidth_mean = f2->GetParameter(1);
+      float triggerWidth_mean = H_triggerWidth->GetMean();
       trigW[arrayIterator] = triggerWidth_mean;
       cout << "Trigger Width: " << trigW[arrayIterator] << endl;
-      double triggerWidth_spread = f2->GetParameter(2);
-      double triggerWidth_StdDev = H_triggerWidth->GetStdDev();
+      float triggerWidth_spread = f2->GetParameter(2);
+      float triggerWidth_StdDev = H_triggerWidth->GetStdDev();
       trigWe[arrayIterator] = triggerWidth_StdDev;
       cout << "TriggerWidth Error: " << trigWe[arrayIterator] << endl;
       H_triggerWidtherr->Fill(triggerWidth_StdDev);
@@ -317,12 +321,12 @@ void EventLoop::execute() {
       binmin = H_PMTPulseWidth->GetMinimumBin(); x_low = H_PMTPulseWidth->GetXaxis()->GetBinCenter(binmin);
       TF1* f3 = new TF1("f3", "gaus",  x_low, x_high); // Fit Gaussian of the PMT Width data from this set point 
       H_PMTPulseWidth->Fit("f3", "S");
-      //	double PMTPulseWidth_mean = f3->GetParameter(1);
-      double PMTPulseWidth_mean = H_PMTPulseWidth->GetMean();
+      //	float PMTPulseWidth_mean = f3->GetParameter(1);
+      float PMTPulseWidth_mean = H_PMTPulseWidth->GetMean();
       PMTPW[arrayIterator] = PMTPulseWidth_mean;
       cout << "Pulse Width: " << PMTPW[arrayIterator] << endl;
-      double PMTPulseWidth_spread = f3->GetParameter(2);
-      double PMTPulseWidth_StdDev = H_PMTPulseWidth->GetStdDev();
+      float PMTPulseWidth_spread = f3->GetParameter(2);
+      float PMTPulseWidth_StdDev = H_PMTPulseWidth->GetStdDev();
       PMTPWe[arrayIterator] = PMTPulseWidth_StdDev;
       cout << "Pulse Width Error: " << PMTPWe[arrayIterator] << endl;
        
@@ -408,152 +412,224 @@ void EventLoop::execute() {
   //Trigger Width Fit Function - DO NOT DELETE!
   //    int TWbinmax = H_lnnph_vs_TriggerWidth->GetMaximumBin(); int TW_high = H_lnnph_vs_TriggerWidth->GetXaxis()->GetBinCenter(TWbinmax);
   //int TWbinmin = H_lnnph_vs_TriggerWidth->GetMinimumBin(); int TW_low = H_lnnph_vs_TriggerWidth->GetXaxis()->GetBinCenter(TWbinmin);
+  cout<<"Fitting trigW vs lnNph"<<endl;
   TF1 *fitf_0 = new TF1("fitf_0",fitf0,6,14,4);
   fitf_0->SetParameters(19.,0.25,-0.006,0.0006);
   H_lnnph_vs_TriggerWidth->Fit(fitf_0);
-   
+
+  cout<<"Fitting trigW vs pulseW"<<endl;
   int TWPWbinmax = H_lnnph_vs_TriggerWidth->GetMaximumBin(); int TWPW_high = H_lnnph_vs_TriggerWidth->GetXaxis()->GetBinCenter(TWPWbinmax);
   TF1*TrigWPWFit = new TF1("TrigWPWFit","expo",20,TWPW_high);
   H_TrigWidthmean_vs_PMTPulseWidthmean->Fit(TrigWPWFit);
 
-  int TrigWbinmax = H_TriggerWidth_vs_lnnph->GetMaximumBin(); int TrigW_high = H_TriggerWidth_vs_lnnph->GetXaxis()->GetBinCenter(TrigWbinmax);
-  TF1*TWfit = new TF1("TWfit","pol4", 15,TrigW_high);
+  cout<<"Fitting lnNph vs trigW"<<endl;
+  //  int TrigWbinmax = H_TriggerWidth_vs_lnnph->GetMaximumBin(); int TrigW_high = H_TriggerWidth_vs_lnnph->GetXaxis()->GetBinCenter(TrigWbinmax);
+  TF1*TWfit = new TF1("TWfit","pol4", 20,65);
   H_TriggerWidth_vs_lnnph->Fit(TWfit);
 
+  cout<<"Fitting trigW vs widthset"<<endl;
   //    TF1 *W5 = new TF1("W5","pol1", 5, 6);
   TF1 *W5 = new TF1("W5","pol1", 5.015873, 6);
   H_WidthSet_vs_TrigWidth->Fit(W5,"R");
-  TF1 *W5params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W5");
-  double W5param0 = W5params -> GetParameter(0);
-  double W5param1 = W5params -> GetParameter(1);
 
   //TF1 *W6 = new TF1("W6","pol1", 6, 7);
   TF1 *W6 = new TF1("W6","pol1", 6.015873, 7);
   H_WidthSet_vs_TrigWidth->Fit(W6,"+R");
-  TF1 *W6params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W6");
-  double W6param0 = W6params -> GetParameter(0);
-  double W6param1 = W6params -> GetParameter(1);
-
+  
   //TF1 *W7 = new TF1("W7","pol1", 7, 8);
   TF1 *W7 = new TF1("W7","pol1", 7.015873, 8);
   H_WidthSet_vs_TrigWidth->Fit(W7,"+R");
-  TF1 *W7params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W7");
-  double W7param0 = W7params -> GetParameter(0);
-  double W7param1 = W7params -> GetParameter(1);
-
+  
   //TF1 *W8 = new TF1("W8","pol1", 8, 9);
   TF1 *W8 = new TF1("W8","pol1", 8.015873, 9);
   H_WidthSet_vs_TrigWidth->Fit(W8,"+R");
-  TF1 *W8params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W8");
-  double W8param0 = W8params -> GetParameter(0);
-  double W8param1 = W8params -> GetParameter(1);
-
+  
   //TF1 *W9 = new TF1("W9","pol1", 9, 10);
   TF1 *W9 = new TF1("W9","pol1", 9.015873, 10);
   H_WidthSet_vs_TrigWidth->Fit(W9,"+R");
-  TF1 *W9params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W9");
-  double W9param0 = W9params -> GetParameter(0);
-  double W9param1 = W9params -> GetParameter(1);
-
+  
   //TF1 *W10 = new TF1("W10","pol1", 10, 11);
   TF1 *W10 = new TF1("W10","pol1", 10.015873, 11);
   H_WidthSet_vs_TrigWidth->Fit(W10,"+R");
-  TF1 *W10params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W10");
-  double W10param0 = W10params -> GetParameter(0);
-  double W10param1 = W10params -> GetParameter(1);
-
+  
   //TF1 *W11 = new TF1("W11","pol1", 11, 12);
   TF1 *W11 = new TF1("W11","pol1", 11.015873, 12);
   H_WidthSet_vs_TrigWidth->Fit(W11,"+R");
-  TF1 *W11params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W11");
-  double W11param0 = W11params -> GetParameter(0);
-  double W11param1 = W11params -> GetParameter(1);
-
+  
   //TF1 *W12 = new TF1("W12","pol1", 12, 13);
   TF1 *W12 = new TF1("W12","pol1", 12.015873, 13);
   H_WidthSet_vs_TrigWidth->Fit(W12,"+R");
-  TF1 *W12params = (TF1*)H_WidthSet_vs_TrigWidth->GetListOfFunctions()->FindObject("W12");
-  double W12param0 = W12params -> GetParameter(0);
-  double W12param1 = W12params -> GetParameter(1);
-
+  
   //    TF1 *FullW = new TF1("FullW","pol1", 5, 13);
   //TF1 *W12 = new TF1("W12","pol1", 12.015873, 13);
   //H_WidthSet_vs_TrigWidth->Fit(FullW,"+R");
     
-  TGraphErrors* G_TWS_vs_TW = new TGraphErrors(size,trigW,twStep,trigWe,0);
+  /*
   TCanvas *c = new TCanvas("c", "c",10,65,1920,1080);
-  TH2F *TWS_vs_TW = new TH2F("TWS_vs_TW","TriggerWidthStep vs TriggerWidth",5500,15,70,567,4,14);
-  TWS_vs_TW->SetStats("kFalse");
-  TWS_vs_TW->Draw();
+  TGraphErrors* G_TWS_vs_TW = new TGraphErrors(size,trigW,twStep,trigWe,0);
   G_TWS_vs_TW->SetMarkerStyle(6);
-  G_TWS_vs_TW->Draw("A");
+  G_TWS_vs_TW->Draw("AP");
   c->Update();
-  c->Write();
-    
-  //TGraphErrors* G_TW_vs_TWS = new TGraphErrors(size,twStep,trigW,0,trigWe);
+  c->Write("C_TWS_vs_TW");
+  */
+  TCanvas *c1 = new TCanvas("c1", "c1",10,65,1920,1080);
+  c1->SetGrid();
   TGraphErrors* G_TW_vs_TWS = new TGraphErrors(size,twStep,trigW,0,trigWe);
   G_TW_vs_TWS->SetMarkerStyle(6);
   G_TW_vs_TWS->Fit(W5,"R");
+  TF1 *W5params = (TF1*)G_TW_vs_TWS->GetListOfFunctions()->FindObject("W5");
+  double W5param0 = W5params -> GetParameter(0);
+  double W5param1 = W5params -> GetParameter(1);
   G_TW_vs_TWS->Fit(W6,"+R");
+  TF1 *W6params = (TF1*)G_TW_vs_TWS->GetListOfFunctions()->FindObject("W6");
+  double W6param0 = W6params -> GetParameter(0);
+  double W6param1 = W6params -> GetParameter(1);
   G_TW_vs_TWS->Fit(W7,"+R");
+  TF1 *W7params = (TF1*)G_TW_vs_TWS->GetListOfFunctions()->FindObject("W7");
+  double W7param0 = W7params -> GetParameter(0);
+  double W7param1 = W7params -> GetParameter(1);
   G_TW_vs_TWS->Fit(W8,"+R");
+  TF1 *W8params = (TF1*)G_TW_vs_TWS->GetListOfFunctions()->FindObject("W8");
+  double W8param0 = W8params -> GetParameter(0);
+  double W8param1 = W8params -> GetParameter(1);
   G_TW_vs_TWS->Fit(W9,"+R");
+  TF1 *W9params = (TF1*)G_TW_vs_TWS->GetListOfFunctions()->FindObject("W9");
+  double W9param0 = W9params -> GetParameter(0);
+  double W9param1 = W9params -> GetParameter(1);
   G_TW_vs_TWS->Fit(W10,"+R");
+  TF1 *W10params = (TF1*)G_TW_vs_TWS->GetListOfFunctions()->FindObject("W10");
+  double W10param0 = W10params -> GetParameter(0);
+  double W10param1 = W10params -> GetParameter(1);
   G_TW_vs_TWS->Fit(W11,"+R");
+  TF1 *W11params = (TF1*)G_TW_vs_TWS->GetListOfFunctions()->FindObject("W11");
+  double W11param0 = W11params -> GetParameter(0);
+  double W11param1 = W11params -> GetParameter(1);
   G_TW_vs_TWS->Fit(W12,"+R");
+  TF1 *W12params = (TF1*)G_TW_vs_TWS->GetListOfFunctions()->FindObject("W12");
+  double W12param0 = W12params -> GetParameter(0);
+  double W12param1 = W12params -> GetParameter(1);
   G_TW_vs_TWS->GetXaxis()->SetRangeUser(4,14);
   G_TW_vs_TWS->GetYaxis()->SetRangeUser(15,70);
   G_TW_vs_TWS->GetXaxis()->SetTitle("Trigger width step");
   G_TW_vs_TWS->GetYaxis()->SetTitle("Trigger width (ns)");
-  G_TW_vs_TWS->SetTitle("Trigger width versus trigger width step");
-  G_TW_vs_TWS->Draw("A");
-  G_TW_vs_TWS->Write();
+  string TWTWStitlestr = "Trigger width versus trigger width step for FPGA" + to_string(fpgaNum) + " " + "CH" + to_string(PBNum);
+  char TWTWStitlename[TWTWStitlestr.size() + 1]; //String to Char converson for filename
+  TWTWStitlestr.copy(TWTWStitlename,TWTWStitlestr.size() + 1);
+  TWTWStitlename[TWTWStitlestr.size()] = '\0';
+  cout << TWTWStitlename << endl;  
+  G_TW_vs_TWS->SetTitle(TWTWStitlename);
+  G_TW_vs_TWS->Draw("AP");
+  //  G_TW_vs_TWS->Write();
+  c1->Update();
+  c1->Write("C_TW_vs_TWS");
 
-  /*
-    TGraphErrors* G_PMTPW_vs_TW = new TGraphErrors(size,trigW,PMTPW,trigWe,PMTPWe);
-    TCanvas *c3 = new TCanvas("c3", "c3",10,65,1920,1080);
-    TH2F *PMTPW_vs_TW = new TH2F("PMTPW_vs_TW","PMTPW_vs_TW",5500,15,70,300,0,30);
-    PMTPW_vs_TW->SetStats("kFalse");
-    PMTPW_vs_TW->Draw();
-    G_PMTPW_vs_TW->SetMarkerStyle(6);
-    G_PMTPW_vs_TW->Draw("P");
-    c3->Update();
-    c3->Write();
-  */    
   TCanvas *c2 = new TCanvas("c2", "c2",10,65,1920,1080);
+  c2->SetGrid();
   TGraphErrors* G_TW_vs_lnNph = new TGraphErrors(size,lnNph,trigW,lnNphe,trigWe);
-  TH2F *TW_vs_lnNph = new TH2F("TW_vs_lnNph","Trigger width versus ln(Nph)",80,6,14,550,15,70);
-  TW_vs_lnNph->Draw();
   G_TW_vs_lnNph->Fit(fitf_0,"R");
+  gStyle->SetOptFit(1);
   G_TW_vs_lnNph->SetMarkerStyle(6);
   G_TW_vs_lnNph->GetXaxis()->SetLimits(6,14);
   G_TW_vs_lnNph->GetYaxis()->SetRangeUser(15,70);
   G_TW_vs_lnNph->GetXaxis()->SetTitle("ln(Number of photons per pulse)");
   G_TW_vs_lnNph->GetYaxis()->SetTitle("Trigger width (ns)");
-  G_TW_vs_lnNph->SetTitle("Trigger width versus ln(Number of photons per pulse)");
-  G_TW_vs_lnNph->Draw("A");
-  G_TW_vs_lnNph->Write("G_TW_vs_lnNph");
+  string TWlnNphtitlestr = "Trigger width versus ln(Number of photons per pulse) for FPGA" + to_string(fpgaNum) + " " + "CH" + to_string(PBNum);
+  char TWlnNphtitlename[TWlnNphtitlestr.size() + 1]; //String to Char converson for filename
+  TWlnNphtitlestr.copy(TWlnNphtitlename,TWlnNphtitlestr.size() + 1);
+  TWlnNphtitlename[TWlnNphtitlestr.size()] = '\0';
+  cout << TWlnNphtitlename << endl;  
+  G_TW_vs_lnNph->SetTitle(TWlnNphtitlename);
+  G_TW_vs_lnNph->Draw("AP");
+  //  G_TW_vs_lnNph->Write("G_TW_vs_lnNph");
   c2->Update();
   c2->Write("C_TW_vs_lnNph");
-    
+  //  c2->Modified();
+
+  
+  TCanvas *c3 = new TCanvas("c3", "c3",10,65,1920,1080);
+  c3->SetGrid();
+  TGraphErrors* G_lnNph_vs_TW = new TGraphErrors(size,trigW,lnNph,trigWe,lnNphe);
+  G_lnNph_vs_TW->Fit(TWfit,"R");
+  gStyle->SetOptFit(1);
+  G_lnNph_vs_TW->SetMarkerStyle(6);
+  G_lnNph_vs_TW->GetYaxis()->SetRangeUser(6,14);
+  G_lnNph_vs_TW->GetXaxis()->SetLimits(15,70);
+  G_lnNph_vs_TW->GetYaxis()->SetTitle("ln(Number of photons per pulse)");
+  G_lnNph_vs_TW->GetXaxis()->SetTitle("Trigger width (ns)");
+  string lnNphTWtitlestr = "ln(Number of photons per pulse) versus trigger width for FPGA" + to_string(fpgaNum) + " " + "CH" + to_string(PBNum);
+  char lnNphTWtitlename[lnNphTWtitlestr.size() + 1]; //String to Char converson for filename
+  lnNphTWtitlestr.copy(lnNphTWtitlename,lnNphTWtitlestr.size() + 1);
+  lnNphTWtitlename[lnNphTWtitlestr.size()] = '\0';
+  cout << lnNphTWtitlename << endl;  
+  G_lnNph_vs_TW->SetTitle(lnNphTWtitlename);
+  G_lnNph_vs_TW->Draw("AP");
+  //  G_lnNph_vs_TW->Write("G_lnNph_vs_TW");
+  c3->Update();
+  c3->Write("C_lnNph_vs_TW");
+  //  c3->Modified();
+
+
+  TCanvas *c4 = new TCanvas("c4", "c4",10,65,1920,1080);
+  c4->SetGrid();
+  c4->SetLogy();
+  TGraphErrors* G_Nph_vs_PW = new TGraphErrors(size,PMTPW,Nph,PMTPWe,Nphe);
+  G_Nph_vs_PW->SetMarkerStyle(6);
+  G_Nph_vs_PW->GetXaxis()->SetLimits(0,30);
+  G_Nph_vs_PW->GetYaxis()->SetRangeUser(0,1e6);
+  //  G_Nph_vs_PW->GetYaxis()->SetLog();
+  G_Nph_vs_PW->GetXaxis()->SetTitle("Pulse width (ns)");
+  G_Nph_vs_PW->GetYaxis()->SetTitle("log(Number of photons per pulse)");
+  string NphPWtitlestr = "log(Number of photons per pulse) versus pulse width for FPGA" + to_string(fpgaNum) + " " + "CH" + to_string(PBNum);
+  char NphPWtitlename[NphPWtitlestr.size() + 1]; //String to Char converson for filename
+  NphPWtitlestr.copy(NphPWtitlename,NphPWtitlestr.size() + 1);
+  NphPWtitlename[NphPWtitlestr.size()] = '\0';
+  cout << NphPWtitlename << endl;  
+  G_Nph_vs_PW->SetTitle(NphPWtitlename);
+  G_Nph_vs_PW->Draw("AP");
+  G_Nph_vs_PW->Write("G_Nph_vs_PW");
+  c4->Update();
+  c4->Write("C_Nph_vs_PW");
+
+  TCanvas *c5 = new TCanvas("c5", "c5",10,65,1920,1080);
+  c5->SetGrid();
+  c5->SetLogy();
+  c5->SetLogx();
+  TGraphErrors* G_NphCalc_vs_Nph = new TGraphErrors(size,Nph,NphCalc,Nphe,0);
+  G_NphCalc_vs_Nph->SetMarkerStyle(6);
+  G_NphCalc_vs_Nph->GetXaxis()->SetLimits(0,1e6);
+  G_NphCalc_vs_Nph->GetYaxis()->SetRangeUser(0,1);
+  G_NphCalc_vs_Nph->GetXaxis()->SetTitle("Number of photons per pulse");
+  G_NphCalc_vs_Nph->GetYaxis()->SetTitle("Nphe/Nph");
+  //G_NphCalc_vs_Nph->SetLogx();
+  string NphCalctitlestr = "Nphe/Nph versus Number of photons per pulse for FPGA" + to_string(fpgaNum) + " " + "CH" + to_string(PBNum);
+  char NphCalctitlename[NphCalctitlestr.size() + 1]; //String to Char converson for filename
+  NphCalctitlestr.copy(NphCalctitlename,NphCalctitlestr.size() + 1);
+  NphCalctitlename[NphCalctitlestr.size()] = '\0';
+  cout << NphCalctitlename << endl;  
+  G_NphCalc_vs_Nph->SetTitle(NphCalctitlename);
+  G_NphCalc_vs_Nph->Draw("AP");
+  //  G_NphCalc_vs_Nph->Write("G_NphCalc_vs_Nph");
+  c5->Update();
+  c5->Write("C_NphCalc_vs_Nph");
+  
   H_fpgaNum->Fill(fpgaBoardNumOut);
   Int_t fpga_Num = H_fpgaNum->GetMean();
   H_PBNum->Fill(pulserboardnumOut);
   Int_t PB_Num = H_PBNum->GetMean();
  
-  TF1 *TrigWparams = (TF1*)H_lnnph_vs_TriggerWidth->GetListOfFunctions()->FindObject("fitf_0");
+  TF1 *TrigWparams = (TF1*)G_TW_vs_lnNph->GetListOfFunctions()->FindObject("fitf_0");
   double TrigWparam0 = TrigWparams -> GetParameter(0);
   double TrigWparam1 = TrigWparams -> GetParameter(1);
   double TrigWparam2 = TrigWparams -> GetParameter(2);
   double TrigWparam3 = TrigWparams -> GetParameter(3);
-
-  TF1 *TWparams = (TF1*)H_TriggerWidth_vs_lnnph->GetListOfFunctions()->FindObject("TWfit");
+  /*
+  TF1 *TWparams = (TF1*)G_lnNph_vs_TW->GetListOfFunctions()->FindObject("TWfit");
   double TWparam0 = TWparams -> GetParameter(0);
   double TWparam1 = TWparams -> GetParameter(1);
   double TWparam2 = TWparams -> GetParameter(2);
   double TWparam3 = TWparams -> GetParameter(3);
   double TWparam4 = TWparams -> GetParameter(4);
-  /*
+
     TF1 *PWparams = (TF1*)H_PMTPulseWidth_vs_nph->GetListOfFunctions()->FindObject("PMTnphFit");
     double PWparam0 = PWparams -> GetParameter(0);
     double PWparam1 = PWparams -> GetParameter(1);
@@ -602,7 +678,7 @@ void EventLoop::execute() {
   FILE *dfile = fopen (WSTWfile, "w+");
   fprintf (dfile,"%d\t%d\t%3.6f\t%3.6f\t%3.6f\t%3.6f\t%3.6f\t%3.6f\t%3.6f\t%3.6f\t%3.6f\t%3.6f\t%3.6f\t%3.6f\t%3.6f\t%3.6f\t%3.6f\t%3.6f\n", fpga_Num, PB_Num, W5param0, W5param1, W6param0, W6param1, W7param0, W7param1, W8param0, W8param1, W9param0, W9param1, W10param0, W10param1, W11param0, W11param1, W12param0, W12param1);
   fclose(dfile);  
-
+  /*
   string nphstr = "Analysis_results/FPGA" + to_string(fpgaNum) + "_" + "CH" + to_string(PBNum) + "_TWxlnNph_fit_parameters.txt";
   char nphfile[nphstr.size() + 1]; //String to Char converson for filename
   nphstr.copy(nphfile, nphstr.size() + 1);
@@ -611,8 +687,20 @@ void EventLoop::execute() {
   FILE *efile = fopen (nphfile, "w+");
   fprintf (efile,"%d\t%d\t%3.6f\t%3.6f\t%3.6f\t%3.6f\t%3.6f\n", fpga_Num, PB_Num, TWparam0, TWparam1, TWparam2,TWparam3, TWparam4);
   fclose(efile);
-
+  */
   outFile->Write();
   outFile->Close();
 }
 
+
+/*
+    TGraphErrors* G_PMTPW_vs_TW = new TGraphErrors(size,trigW,PMTPW,trigWe,PMTPWe);
+    TCanvas *c3 = new TCanvas("c3", "c3",10,65,1920,1080);
+    TH2F *PMTPW_vs_TW = new TH2F("PMTPW_vs_TW","PMTPW_vs_TW",5500,15,70,300,0,30);
+    PMTPW_vs_TW->SetStats("kFalse");
+    PMTPW_vs_TW->Draw();
+    G_PMTPW_vs_TW->SetMarkerStyle(6);
+    G_PMTPW_vs_TW->Draw("P");
+    c3->Update();
+    c3->Write();
+  */    
