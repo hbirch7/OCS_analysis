@@ -122,8 +122,10 @@ void EventLoop::execute() {
   Float_t NphCalc[size];
   Float_t lnNph[size];
   Float_t lnNphe[size];
+  Float_t lnNpheScaled[size];
   Float_t trigW[size];
   Float_t trigWe[size];
+  Float_t trigWeScaled[size];
   Float_t PMTPW[size];
   Float_t PMTPWe[size];
   Float_t twStep[size];
@@ -282,6 +284,7 @@ void EventLoop::execute() {
       cout << "lnNph: " << lnNph[arrayIterator] << endl;
       float lnnph_spread = 0.434*(nph_spread/nph_mean);
       lnNphe[arrayIterator] = lnnph_spread;
+      lnNpheScaled[arrayIterator] = 10*lnnph_spread;
       cout << "lnNphe: " << lnNphe[arrayIterator] << endl;
       float NphCalcVal = nph_spread/nph_mean;
       NphCalc[arrayIterator] = NphCalcVal;
@@ -306,6 +309,7 @@ void EventLoop::execute() {
       float triggerWidth_spread = f2->GetParameter(2);
       float triggerWidth_StdDev = H_triggerWidth->GetStdDev();
       trigWe[arrayIterator] = triggerWidth_StdDev;
+      trigWeScaled[arrayIterator] = 10*triggerWidth_StdDev;
       cout << "TriggerWidth Error: " << trigWe[arrayIterator] << endl;
       H_triggerWidtherr->Fill(triggerWidth_StdDev);
 	
@@ -524,14 +528,17 @@ void EventLoop::execute() {
   c1->Write("C_TW_vs_TWS");
 
   TCanvas *c2 = new TCanvas("c2", "c2",10,65,1920,1080);
-  c2->SetGrid();
-  TGraphErrors* G_TW_vs_lnNph = new TGraphErrors(size,lnNph,trigW,lnNphe,trigWe);
+  // c2->SetGrid();
+  TGraphErrors* G_TW_vs_lnNph = new TGraphErrors(size,lnNph,trigW,lnNpheScaled,trigWeScaled);
+//   TGraphErrors* G_TW_vs_lnNph = new TGraphErrors(size,lnNph,trigW,lnNphe,trigWe);
   G_TW_vs_lnNph->Fit(fitf_0,"R");
-  gStyle->SetOptFit(1);
-  G_TW_vs_lnNph->SetMarkerStyle(6);
+  //gStyle->SetOptFit(1);
+  gStyle->SetOptStat(0);
+  G_TW_vs_lnNph->SetMarkerStyle(8);
+  G_TW_vs_lnNph->SetMarkerSize(8);
   G_TW_vs_lnNph->GetXaxis()->SetLimits(6,14);
-  G_TW_vs_lnNph->GetYaxis()->SetRangeUser(15,70);
-  G_TW_vs_lnNph->GetXaxis()->SetTitle("ln(Number of photons per pulse)");
+  G_TW_vs_lnNph->GetYaxis()->SetRangeUser(20,65);
+  G_TW_vs_lnNph->GetXaxis()->SetTitle("ln(Nph)");
   G_TW_vs_lnNph->GetYaxis()->SetTitle("Trigger width (ns)");
   string TWlnNphtitlestr = "Trigger width versus ln(Number of photons per pulse) for FPGA" + to_string(fpgaNum) + " " + "CH" + to_string(PBNum);
   char TWlnNphtitlename[TWlnNphtitlestr.size() + 1]; //String to Char converson for filename
@@ -570,7 +577,7 @@ void EventLoop::execute() {
 
 
   TCanvas *c4 = new TCanvas("c4", "c4",10,65,1920,1080);
-  c4->SetGrid();
+  //  c4->SetGrid;
   c4->SetLogy();
   TGraphErrors* G_Nph_vs_PW = new TGraphErrors(size,PMTPW,Nph,PMTPWe,Nphe);
   G_Nph_vs_PW->SetMarkerStyle(6);
@@ -578,7 +585,7 @@ void EventLoop::execute() {
   G_Nph_vs_PW->GetYaxis()->SetRangeUser(0,1e6);
   //  G_Nph_vs_PW->GetYaxis()->SetLog();
   G_Nph_vs_PW->GetXaxis()->SetTitle("Pulse width (ns)");
-  G_Nph_vs_PW->GetYaxis()->SetTitle("log(Number of photons per pulse)");
+  G_Nph_vs_PW->GetYaxis()->SetTitle("log(Nph)");
   string NphPWtitlestr = "log(Number of photons per pulse) versus pulse width for FPGA" + to_string(fpgaNum) + " " + "CH" + to_string(PBNum);
   char NphPWtitlename[NphPWtitlestr.size() + 1]; //String to Char converson for filename
   NphPWtitlestr.copy(NphPWtitlename,NphPWtitlestr.size() + 1);
